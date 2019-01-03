@@ -15,11 +15,11 @@
     "transform-class-properties",
     ["react-css-modules", {
       "generateScopedName": "[name]__[local]",
-        "filetypes": {
-          ".css": {
-            "syntax": "postcss-scss"
-          }
+      "filetypes": {
+        ".css": {
+          "syntax": "postcss-scss"
         }
-      }]
-    ]
+      }
+    }]
+  ]
 }
