@@ -1,0 +1,53 @@
+* {
+  box-sizing: border-box;
+
+  &:before,
+  &:after {
+    box-sizing: inherit;
+  }
+}
+
+html,
+body {
+  height: 100%;
+}
+
+html {
+  overflow: hidden;
+}
+
+body {
+  background: #333333;
+}
+
+#react-container {
+  height: 100%;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+$scroll-background: rgba(255, 255, 255, 0.05);
+$scroll-color: rgba(255, 255, 255, 0.15);
+::-webkit-scrollbar-track {
+  background: $scroll-background;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 0;
+  border: 0;
+  background: $scroll-color;
+  background-clip: content-box;
+
+  &:vertical:active,
+  &:horizontal:active {
+    border-radius: 0;
+    border-width: 0;
+  }
+}
+
+::-webkit-scrollbar-corner {
+  background: $scroll-background;
+}

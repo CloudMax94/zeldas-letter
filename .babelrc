@@ -1,0 +1,25 @@
+{
+  "presets": [
+    ["env", {
+      "loose": true,
+      "plugins": false,
+      "targets": {
+        "browsers": ["> 1%", "last 2 versions"]
+      },
+      "useBuiltIns": true
+    }],
+    "react"
+  ],
+  "plugins": [
+    "transform-object-rest-spread",
+    "transform-class-properties",
+    ["react-css-modules", {
+      "generateScopedName": "[name]__[local]",
+        "filetypes": {
+          ".css": {
+            "syntax": "postcss-scss"
+          }
+        }
+      }]
+    ]
+}
