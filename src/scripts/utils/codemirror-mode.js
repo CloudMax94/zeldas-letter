@@ -1,11 +1,5 @@
-/**
-* @file bbcode.js
-* @brief BBCode mode for CodeMirror<http://codemirror.net/>
-* @author Ruslan Osmanov <rrosmanov@gmail.com>
-* @version 2.0
-* @date 12.10.2013
-*/
 import CodeMirror from 'codemirror'
+
 CodeMirror.defineMode('mudora', function (config) {
   var settings, last
 
@@ -38,14 +32,12 @@ CodeMirror.defineMode('mudora', function (config) {
       if (stream.match('Violet Evergarden', true, true)) {
         return helpers.cont('atom')
       } else if (stream.match('ヴァイオレット・エヴァーガーデン', true, true)) {
-        stream.eat('クラウドマックス')
         return helpers.cont('atom')
       }
       // Highlight CloudMax
       if (stream.match('CloudMax', true, true)) {
         return helpers.cont('variable-2')
       } else if (stream.match('クラウドマックス', true, true)) {
-        stream.eat('クラウドマックス')
         return helpers.cont('variable-2')
       }
       // Hylian

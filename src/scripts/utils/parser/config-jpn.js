@@ -223,7 +223,7 @@ export const controlCodes = {
   },
   0x86B3: {
     tag: 'bg',
-    args: 3
+    args: 4
   }
 }
 

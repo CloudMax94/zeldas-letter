@@ -5,11 +5,13 @@ import {
   endOfMessage as endOfMessageJ,
   characterTable as characterTableJ
 } from './config-jpn'
-import {generateTexture} from '@cloudmodding/texture-manipulator'
+import {generateTexture} from '@cloudmodding/texture-manipulator/lib'
 import Encoding from 'encoding-japanese'
 import ieee754 from 'ieee754'
 
-let cachedUnicode = {}
+let cachedUnicode = {
+  '┭': [0x86, 0xD3]
+}
 function unicodeCharToSJIS (char) {
   if (char in cachedUnicode) {
     return cachedUnicode[char]
@@ -26,7 +28,9 @@ function unicodeCharToSJIS (char) {
   return charData
 }
 
-let cachedSJIS = {}
+let cachedSJIS = {
+  0x86D3: '┭'
+}
 function SJIStoUnicodeChar (sjis) {
   if (sjis in cachedSJIS) {
     return cachedSJIS[sjis]
@@ -248,6 +252,10 @@ class MessageEditorParser {
           if (controlCode.tag.toLowerCase() !== tag) {
             continue
           }
+          if ((!controlCode.args && typeof match.argument !== 'undefined') || (controlCode.args && typeof match.argument === 'undefined')) {
+            // Argument does not match!
+            continue
+          }
           for (let i = byteLength - 1; i >= 0; i--) {
             data.push((code >> (i * 8)) & 0xFF)
           }
@@ -423,7 +431,7 @@ class MessageEditorParser {
     return colors[id - 1]
   }
 
-  getBoxInfo (msgBuffer, japanese) {
+  getBoxInfo (msgBuffer, prevInfo, japanese) {
     let byteLength = japanese ? 2 : 1
     let eom = japanese ? endOfMessageJ : endOfMessage
     let codes = japanese ? controlCodesJ : controlCodes
@@ -443,6 +451,9 @@ class MessageEditorParser {
         end = true
         boxBreak = true
       }
+    }
+    if (prevInfo) {
+      state.icon = prevInfo.icon
     }
     let i = 0
     msgBuffer = Buffer.concat([msgBuffer, Buffer.alloc(4)])
@@ -476,9 +487,10 @@ class MessageEditorParser {
     let lastBox = false
     let boxBreak = 0
     let i = 0
+    let prevInfo = null
     while ((lastBox !== true) && (i < 50)) { // safeguard, I don't want shit crashing when developing
       let buff = buffer.slice(boxBreak)
-      let info = this.getBoxInfo(buff, japanese)
+      let info = this.getBoxInfo(buff, prevInfo, japanese)
       console.log('info', info)
       if (info.boxBreak) {
         boxBreak += info.boxBreak
@@ -491,6 +503,7 @@ class MessageEditorParser {
         boxes.push(info.nextMessage)
         break
       }
+      prevInfo = info
       i++
     }
     console.timeEnd('renderMessage')
