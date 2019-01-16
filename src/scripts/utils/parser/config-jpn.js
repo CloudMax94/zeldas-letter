@@ -227,10 +227,9 @@ export const controlCodes = {
   }
 }
 
-// FIXME: [+] does not work. + not supported in tags?
 let specialCharacters = [
   'A', 'B', 'C', 'L', 'R', 'Z',
-  '^', 'v', '<', '>', 'TARGET', 'STICK', '+'
+  '^', 'v', '<', '>', 'TARGET', 'STICK'
 ]
 let i = 0x839F
 for (let char of specialCharacters) {
@@ -241,12 +240,6 @@ for (let char of specialCharacters) {
   }
   i++
 }
-/*
-let hylianCharacters = [
-  'A', 'B', 'C', 'L', 'R', 'Z',
-  '^', 'v', '<', '>', 'TARGET', 'STICK', '+'
-]
-*/
 
 let hylianMapping = {
   0: ['a', 'あ'],

@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import Parser from '../utils/parser'
 import { hexId } from '../utils/format'
-import { setLanguage } from '../actions/editor'
+import { setMessage, setLanguage } from '../actions/editor'
 import { setMessageType, setMessagePosition, setMessageText } from '../actions/file'
 
 import {Controlled as CodeMirror} from 'react-codemirror2'
@@ -71,12 +71,12 @@ class Editor extends Component {
   }
   render () {
     const {renders} = this.state
-    const {message, language, languages} = this.props
+    const {horizontalPreview, message, language, languages} = this.props
     const data = message.get('data')
     const id = message.get('id')
     const text = data.getIn(['text', language])
     return (
-      <div styleName='container'>
+      <div styleName={horizontalPreview ? 'container--horizontal' : 'container'}>
         <div styleName='workspace'>
           <div styleName='header'>Message: {hexId(id)} / {id}</div>
           <div styleName='settings'>
@@ -138,6 +138,10 @@ class Editor extends Component {
               lineNumbers: true,
               lineWrapping: true,
               styleActiveLine: true,
+              extraKeys: {
+                Tab: false,
+                'Shift-Tab': false,
+              },
               theme: 'monokai'
             }}
             onBeforeChange={this.handleCodeMirrorInput}
@@ -149,7 +153,7 @@ class Editor extends Component {
         <div styleName='preview'>
           {renders.map((render, index) => {
             if (typeof render === 'number') {
-              return <div key='continue' styleName='previewContinue'>Continues at message {render}</div>
+              return <div key='continue' styleName='previewContinue' onClick={(e) => this.props.setMessage(render)}>Continues at message {hexId(render)} / {render}</div>
             }
             return <img key={index} src={render} />
           })}
@@ -169,6 +173,7 @@ function mapStateToProps (state) {
     currentMessage = state.file.getIn(['messages', 0])
   }
   return {
+    horizontalPreview: state.settings.get('horizontalPreview'),
     language: state.editor.get('language'),
     languages: state.file.get('languages'),
     message: currentMessage,
@@ -179,6 +184,7 @@ function mapStateToProps (state) {
 function mapDispatchToProps (dispatch) {
   return bindActionCreators({
     setLanguage,
+    setMessage,
     setMessageType,
     setMessagePosition,
     setMessageText

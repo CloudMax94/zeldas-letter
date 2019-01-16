@@ -6,6 +6,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { setMessage } from '../actions/editor'
 import { hexId, japaneseStringToInternational } from '../utils/format'
+import Dialog from '../components/Dialog'
 
 class Finder extends Component {
   constructor (props) {
@@ -19,9 +20,6 @@ class Finder extends Component {
   }
   handleInput = (event) => {
     this.setState({text: event.target.value})
-  }
-  handleContainerClick = (event) => {
-    event.stopPropagation()
   }
   handleResultClick = (event, id) => {
     const {setMessage, close} = this.props
@@ -65,14 +63,14 @@ class Finder extends Component {
         return plaintext && plaintext.toLowerCase().indexOf(compareText) >= 0
       }).take(100)
     }
-    return [
-      <div key='container' styleName='container' onClick={this.handleContainerClick}>
+    return (
+      <Dialog close={this.props.close}>
         <input styleName='search' type='text' value={text} onChange={this.handleInput} ref={this.setInputRef} placeholder='Search...' />
         <div styleName='results'>
           {results.map(this.renderResult)}
         </div>
-      </div>
-    ]
+      </Dialog>
+    )
   }
 }
 

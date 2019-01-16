@@ -4,19 +4,19 @@
 
   flex: 0 0 32rem;
   width: 32rem;
-  background: rgba(0, 0, 0, 0.25);
-  border-left: rgba(0, 0, 0, 0.25);
 }
 
 .header {
   flex: 0 0 auto;
+  border-left: 1px solid rgba(0, 0, 0, 0.25);
 
   padding: 0.4rem 0.8rem;
-  background: #111;
+  background: rgba(0,0,0,0.5);
 }
 
 .messages {
   flex: 1 1 auto;
+  border-left: 1px solid rgba(0, 0, 0, 0.25);
 
   display: flex;
   flex-direction: column;
@@ -27,13 +27,14 @@
 
 .message {
   display: block;
-  background: #222;
+  background: rgba(0, 0, 0, 0.2);
   color: #fff;
   cursor: pointer;
 
   &:focus {
     outline: 0;
     background: #333;
+    background: rgba(255, 255, 255, 0.03);
   }
 
   hr {
@@ -63,12 +64,12 @@
 
   padding: 0.5rem 1rem;
   font-size: 1.2rem;
-  background: #111;
+  background: rgba(0,0,0,0.5);
 }
 
 .messageContent {
   padding: 1rem;
   line-height: 1.25em;
   white-space: pre-wrap;
-  font-family: $font__preview;
+  font-family: var(--preview-font);
 }

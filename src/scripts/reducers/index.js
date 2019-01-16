@@ -1,9 +1,10 @@
 // @flow
-import { persistCombineReducers } from 'redux-persist'
+import { createTransform, persistCombineReducers } from 'redux-persist'
 import { Map } from 'immutable'
 import storage from 'redux-persist/lib/storage' // or whatever storage you are using
 import file from './file'
 import editor from './editor'
+import settings from './settings'
 
 // HACK: redux-persist v5 can not deal with immutable stores by default
 //       https://github.com/rt2zz/redux-persist/issues/520
@@ -21,16 +22,28 @@ const immutableReconciler = (inboundState, originalState, reducedState) => {
   return newState
 }
 
+const settingsTransform = createTransform(
+  (inboundState, key) => {
+    return inboundState
+  },
+  (outboundState, key) => {
+    return outboundState
+  },
+  {whitelist: ['settings']}
+)
+
 const storeConfig = {
   key: 'mudora',
   storage,
-  whitelist: [],
+  whitelist: ['settings'],
+  transforms: [settingsTransform],
   stateReconciler: immutableReconciler
 }
 
 const rootReducer = persistCombineReducers(storeConfig, {
   file,
-  editor
+  editor,
+  settings
 })
 
 export default rootReducer

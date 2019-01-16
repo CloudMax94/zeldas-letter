@@ -5,7 +5,8 @@
   "author": "Max Persson <admin@cloudmodding.com>",
   "description": "",
   "scripts": {
-    "webpack": "./node_modules/.bin/webpack --progress --colors --watch"
+    "server": "./node_modules/.bin/webpack-dev-server --config webpack.config.js --progress --colors --watch --open",
+    "build": "./node_modules/.bin/webpack --config webpack.config.js --progress --colors"
   },
   "private": true,
   "dependencies": {},
@@ -46,7 +47,6 @@
     "ieee754": "^1.1.8",
     "immutable": "^3.8.2",
     "normalize.css": "^7.0.0",
-    "postcss-advanced-variables": "^1.2.2",
     "postcss-extend": "^1.0.5",
     "postcss-import": "^11.0.0",
     "postcss-loader": "^2.0.9",
@@ -62,6 +62,8 @@
     "redux-persist-transform-immutable": "^4.3.0",
     "redux-thunk": "^2.2.0",
     "style-loader": "^0.19.1",
-    "webpack": "^3.10.0"
+    "webpack": "^3.10.0",
+    "webpack-cli": "^2.1.5",
+    "webpack-dev-server": "^2.11.3"
   }
 }

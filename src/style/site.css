@@ -1,3 +1,8 @@
+:root {
+  --preview-font: 'FOT-Chiaro Std', Roboto;
+  --color-primary: #2a2a2a;
+}
+
 * {
   box-sizing: border-box;
 
@@ -17,28 +22,31 @@ html {
 }
 
 body {
-  background: #333333;
+  background: var(--color-primary);
 }
 
 #react-container {
   height: 100%;
 }
 
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+:root {
+  --scroll-background: rgba(255, 255, 255, 0.05);
+  --scroll-color: rgba(255, 255, 255, 0.15);
 }
 
-$scroll-background: rgba(255, 255, 255, 0.05);
-$scroll-color: rgba(255, 255, 255, 0.15);
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
 ::-webkit-scrollbar-track {
-  background: $scroll-background;
+  background: var(--scroll-background);
 }
 
 ::-webkit-scrollbar-thumb {
   border-radius: 0;
   border: 0;
-  background: $scroll-color;
+  background: var(--scroll-color);
   background-clip: content-box;
 
   &:vertical:active,
@@ -49,5 +57,5 @@ $scroll-color: rgba(255, 255, 255, 0.15);
 }
 
 ::-webkit-scrollbar-corner {
-  background: $scroll-background;
+  background: var(--scroll-background);
 }

@@ -8,7 +8,10 @@ if (navigator.platform.indexOf('Mac') > -1) {
 }
 const messages = [
   (<div>
-    Drop a ROM anywhere to load it
+    Drop a ROM anywhere to load it,<br />or select one with <span styleName='keystroke'>{cmdorctrlString}+O</span>
+  </div>),
+  (<div>
+    Bring up all commands with <span styleName='keystroke'>{cmdorctrlString}+P</span>
   </div>),
   (<div>
     Search for messages using <span styleName='keystroke'>{cmdorctrlString}+F</span>

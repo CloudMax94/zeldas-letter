@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { setMessage } from '../actions/editor'
 import { hexId } from '../utils/format'
+import Dialog from '../components/Dialog'
 
 class Goto extends Component {
   constructor (props) {
@@ -18,9 +19,6 @@ class Goto extends Component {
   }
   handleInput = (event) => {
     this.setState({text: event.target.value})
-  }
-  handleContainerClick = (event) => {
-    event.stopPropagation()
   }
   handleResultClick = (event) => {
     const {messages, setMessage, close} = this.props
@@ -76,14 +74,14 @@ class Goto extends Component {
         )
       }
     }
-    return [
-      <div key='container' styleName='container' onClick={this.handleContainerClick}>
+    return (
+      <Dialog close={this.props.close}>
         <input styleName='search' type='text' value={text} onChange={this.handleInput} onKeyDown={this.handleKeydown} ref={this.setInputRef} placeholder='Enter a Message ID to go to' />
         <div styleName='results'>
           {message ? this.renderResult(message) : null}
         </div>
-      </div>
-    ]
+      </Dialog>
+    )
   }
 }
 

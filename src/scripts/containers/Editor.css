@@ -1,5 +1,6 @@
 .container {
   flex: 1 1 auto;
+  width: 0;
   display: flex;
   flex-direction: row;
 }
@@ -14,14 +15,13 @@
 .header {
   flex: 0 0 auto;
   padding: 0.4rem 0.8rem;
-  background: #111;
+  background: rgba(0,0,0,0.5);
 }
 
 .settings {
   flex: 0 0 auto;
   display: flex;
-  background: #111;
-  padding-bottom: 1px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
 }
 
 .select {
@@ -29,13 +29,34 @@
   flex: 1 1 auto;
   width: 0;
   color: #fff;
-  background: #222;
   padding: 0.4rem 0.8rem;
   border: 0;
-  outline: 0;
 
   & + & {
-    margin-left: 1px;
+    border-left: 1px solid rgba(0, 0, 0, 0.25);
+  }
+
+  --dropdown-arrow: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2353544f%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E') right .7em top 50% / .65em auto no-repeat;
+
+  background: var(--dropdown-arrow);
+
+  &:focus {
+    // Lighten the background without affecting the dropdown itself
+    background: var(--dropdown-arrow), linear-gradient(0deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.04));
+  }
+
+  &,
+  &:focus {
+    outline: 0;
+    background-color: var(--color-primary);
+  }
+
+  &:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #fff; // text color
+  }
+  option:not(:checked) {
+    color: #fff; // prevent <option>s from becoming transparent
   }
 }
 
@@ -47,11 +68,13 @@
 
 .preview {
   flex: 0 0 auto;
-  background: rgba(0, 0, 0, 0.25);
-  border-left: rgba(0, 0, 0, 0.25);
+  border-left: 1px solid rgba(0, 0, 0, 0.25);
 
   overflow-y: scroll;
   overflow-x: visible;
+
+  white-space: nowrap;
+  line-height: 0;
 
   &:before {
     content: '';
@@ -68,7 +91,33 @@
 }
 
 .previewContinue {
+  position: sticky;
+  left: 0;
+  bottom: 0;
+
   padding: 1rem;
   text-align: center;
-  background: #101010;
+  background: rgba(0, 0, 0, 0.5);
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.container--horizontal {
+  composes: container;
+  flex-direction: column;
+  .preview {
+    border-top: 1px solid rgba(0, 0, 0, 0.25);
+    border-left: 0;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    &:before {
+      display: inline-block;
+      height: 240px;
+      width: 0px;
+    }
+    img {
+      display: inline-block;
+    }
+  }
 }

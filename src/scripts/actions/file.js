@@ -6,7 +6,7 @@ import { pad, japaneseStringToInternational } from '../utils/format'
 import Parser from '../utils/parser'
 import FileSaver from 'file-saver'
 
-// TODO: Add a way to customize these configs. Probably in localstorage with a simple UI for it
+// TODO: Add a way to add your own configs. Probably in localstorage with a simple UI for it
 const ROM_CONFIG = {
   debug: {
     dma_table_address: 0x00012F70,
@@ -18,6 +18,12 @@ const ROM_CONFIG = {
     nes_font_static: 20,
     message_data_static: [21, 22, 23],
     code: 28,
+    fffc: [
+      [0x520B4, 0x3C080000],
+      [0x520B8, 0x35080000],
+      [0x520C4, 0x3C0F0000],
+      [0x520F0, 0x35EF0000]
+    ],
     languages: ['English', 'German', 'French']
   },
   ntsc10: {
@@ -31,7 +37,199 @@ const ROM_CONFIG = {
     nes_font_static: 21,
     message_data_static: [19, 22],
     code: 27,
+    fffc: [
+      [0x4ACE0, 0x3C070000],
+      [0x4ACE4, 0x34E70000],
+      [0x4AD14, 0x3C0F0000],
+      [0x4AD1C, 0x35EF0000]
+    ],
     languages: ['Japanese', 'English']
+  },
+  ntsc11: {
+    dma_table_address: 0x00007430,
+    message_table_offset: 0x0F9A6C,
+    character_width_table_offset: 0x102060,
+    icon_item_static: 8,
+    icon_item_24_static: 9,
+    message_static: 18,
+    jpn_font_static: 6,
+    nes_font_static: 21,
+    message_data_static: [19, 22],
+    code: 27,
+    fffc: [
+      [0x4ACE0, 0x3C070000],
+      [0x4ACE4, 0x34E70000],
+      [0x4AD14, 0x3C0F0000],
+      [0x4AD1C, 0x35EF0000]
+    ],
+    languages: ['Japanese', 'English']
+  },
+  ntsc12: {
+    dma_table_address: 0x00007960,
+    message_table_offset: 0x0F991C,
+    character_width_table_offset: 0x101F10,
+    icon_item_static: 8,
+    icon_item_24_static: 9,
+    message_static: 18,
+    jpn_font_static: 6,
+    nes_font_static: 20,
+    message_data_static: [21, 22],
+    code: 27,
+    fffc: [
+      [0x4AD30, 0x3C070000],
+      [0x4AD34, 0x34E70000],
+      [0x4AD64, 0x3C0F0000],
+      [0x4AD6C, 0x35EF0000]
+    ],
+    languages: ['Japanese', 'English']
+  },
+  ntsczc: { // ZC GCN (NTSC)
+    dma_table_address: 0x00007170,
+    message_table_offset: 0x0F8FAC,
+    character_width_table_offset: 0x1015A0,
+    icon_item_static: 8,
+    icon_item_24_static: 9,
+    message_static: 18,
+    jpn_font_static: 6,
+    nes_font_static: 20,
+    message_data_static: [21, 22],
+    code: 27,
+    fffc: [
+      [0x4AAC0, 0x3C070000],
+      [0x4AAC4, 0x34E70000],
+      [0x4AAF4, 0x3C0F0000],
+      [0x4AAFC, 0x35EF0000]
+    ],
+    languages: ['Japanese', 'English']
+  },
+  jpngcn: { // GCN (J)
+    dma_table_address: 0x00007170,
+    message_table_offset: 0x0F8FCC,
+    character_width_table_offset: 0x1015C0,
+    icon_item_static: 8,
+    icon_item_24_static: 9,
+    message_static: 18,
+    jpn_font_static: 6,
+    nes_font_static: 20,
+    message_data_static: [21, 22],
+    code: 27,
+    fffc: [
+      [0x4AAE0, 0x3C070000],
+      [0x4AAE4, 0x34E70000],
+      [0x4AB14, 0x3C0F0000],
+      [0x4AB1C, 0x35EF0000]
+    ],
+    languages: ['Japanese', 'English']
+  },
+  jpnmq: { // Master Quest (J)
+    dma_table_address: 0x00007170,
+    message_table_offset: 0x0F8FAC,
+    character_width_table_offset: 0x1015A0,
+    icon_item_static: 8,
+    icon_item_24_static: 9,
+    message_static: 18,
+    jpn_font_static: 6,
+    nes_font_static: 20,
+    message_data_static: [21, 22],
+    code: 27,
+    fffc: [
+      [0x4AAE0, 0x3C070000],
+      [0x4AAE4, 0x34E70000],
+      [0x4AB14, 0x3C0F0000],
+      [0x4AB1C, 0x35EF0000]
+    ],
+    languages: ['Japanese', 'English']
+  },
+  usamq: { // Master Quest (U)
+    dma_table_address: 0x00007170,
+    message_table_offset: 0x0F8F8C,
+    character_width_table_offset: 0x101580,
+    icon_item_static: 8,
+    icon_item_24_static: 9,
+    message_static: 18,
+    jpn_font_static: 6,
+    nes_font_static: 20,
+    message_data_static: [21, 22],
+    code: 27,
+    fffc: [
+      [0x4AAC0, 0x3C070000],
+      [0x4AAC4, 0x34E70000],
+      [0x4AAF4, 0x3C0F0000],
+      [0x4AAFC, 0x35EF0000]
+    ],
+    languages: ['Japanese', 'English']
+  },
+  pal10: {
+    dma_table_address: 0x00007950,
+    message_table_offset: 0x0F71DC,
+    character_width_table_offset: 0x0FF8BC,
+    icon_item_static: 7,
+    icon_item_24_static: 8,
+    message_static: 18,
+    nes_font_static: 20,
+    message_data_static: [21, 22, 23],
+    code: 28,
+    fffc: [
+      [0x4ACA0, 0x3C070000],
+      [0x4ACA4, 0x34E70000],
+      [0x4ACD4, 0x3C0F0000],
+      [0x4ACDC, 0x35EF0000]
+    ],
+    languages: ['English', 'German', 'French']
+  },
+  pal11: {
+    dma_table_address: 0x00007950,
+    message_table_offset: 0x0F721C,
+    character_width_table_offset: 0x0FF8FC,
+    icon_item_static: 7,
+    icon_item_24_static: 8,
+    message_static: 18,
+    nes_font_static: 20,
+    message_data_static: [21, 22, 23],
+    code: 28,
+    fffc: [
+      [0x4ACA0, 0x3C070000],
+      [0x4ACA4, 0x34E70000],
+      [0x4ACD4, 0x3C0F0000],
+      [0x4ACDC, 0x35EF0000]
+    ],
+    languages: ['English', 'German', 'French']
+  },
+  palgcn: { // GCN (PAL)
+    dma_table_address: 0x00007170,
+    message_table_offset: 0x0F6910,
+    character_width_table_offset: 0x0FEFF0,
+    icon_item_static: 7,
+    icon_item_24_static: 8,
+    message_static: 18,
+    nes_font_static: 20,
+    message_data_static: [21, 22, 23],
+    code: 28,
+    fffc: [
+      [0x4AA50, 0x3C070000],
+      [0x4AA54, 0x34E70000],
+      [0x4AA84, 0x3C0F0000],
+      [0x4AA8C, 0x35EF0000]
+    ],
+    languages: ['English', 'German', 'French']
+  },
+  palmq: { // Master Quest (E)
+    dma_table_address: 0x00007170,
+    message_table_offset: 0x0F68F0,
+    character_width_table_offset: 0x0FEFD0,
+    icon_item_static: 7,
+    icon_item_24_static: 8,
+    message_static: 18,
+    nes_font_static: 20,
+    message_data_static: [21, 22, 23],
+    code: 28,
+    fffc: [
+      [0x4AA50, 0x3C070000],
+      [0x4AA54, 0x34E70000],
+      [0x4AA84, 0x3C0F0000],
+      [0x4AA8C, 0x35EF0000]
+    ],
+    languages: ['English', 'German', 'French']
   }
 }
 
@@ -64,14 +262,18 @@ This message is excluded in searches and is not saved.
 It can be accessed directly by going to message 0.
 
 Shortcuts:
+${formatInfo('cmdorctrl+P')}Bring up all commands
 ${formatInfo('cmdorctrl+F')}Search for message
 ${formatInfo('cmdorctrl+G')}Go to Message ID
+${formatInfo('cmdorctrl+O')}Open ROM file
 ${formatInfo('cmdorctrl+S')}Save ROM file
 
 Special characters:
 [A], [B], [C], [L], [R], [Z],
 [^], [v], [<], [>]
 [STICK], [+], [TARGET]
+
+[+] is only available for the international languages on GCN ROMs.
 
 Control codes:
 [br]            Start next textbox
@@ -122,33 +324,40 @@ Hylian can also be written as rōmaji:
 {ma}{mi} {mu}{me}{mo}  {ra}{ri} {ru} {re}{ro}
 {ya}     {yu}    {yo}  {wa}          {n} {wo}`
 
-/*****
-`
+const versionString = `Version 0.2.0`
+
+const versionStringInt = `
 
 
 
 
 
-[color=0x40][step=0x1C]Version 1.0.0
-[step=0x10]cloudmodding.com[stay]`
-******/
+[step=0x1C]${versionString}
+[step=0x10]cloudmodding.com`
+
+const versionStringJp = `
+
+
+
+[step=0x53]${versionString}
+[step=0x15]cloudmodding.com`
 
 const defaultMessageTexts = {
   Japanese: `[step=0x46][color=0xC01]ゼルダの手紙[/color]
 [step=0x44][icon=0x23]
-[step=0x3]作者：[color=0xC04]クラウドマックス[/color][stay]`,
+[step=0x3]作者：[color=0xC04]クラウドマックス[/color]${versionStringJp}[stay]`,
   English: `[step=0x3B][color=0x41]Zelda's Letter[/color]
 [step=0x3A][icon=0x23]
 
-[step=0x08]Written by [color=0x44]CloudMax[stay]`,
+[step=0x08]Written by [color=0x44]CloudMax[/color]${versionStringInt}[stay]`,
   German: `[step=0x40][color=0x41]Zeldas Brief[/color]
 [step=0x3A][icon=0x23]
 
-Geschrieben von [color=0x44]CloudMax[stay]`,
+Geschrieben von [color=0x44]CloudMax[/color]${versionStringInt}[stay]`,
   French: `[step=0x36][color=0x41]Lettre de Zelda[/color]
 [step=0x3A][icon=0x23]
 
-[step=0x0D]Écrit par [color=0x44]CloudMax[stay]`
+[step=0x0D]Écrit par [color=0x44]CloudMax[/color]${versionStringInt}[stay]`
 }
 
 function prepareDefaultMessage (messages, gameId, languages) {
@@ -161,9 +370,6 @@ function prepareDefaultMessage (messages, gameId, languages) {
     let text = defaultMessageTexts['English']
     if (defaultMessageTexts[language]) {
       text = defaultMessageTexts[language]
-    }
-    if (gameId === 'ntsc10') {
-      text += '\n\n!!!NTSC 1.0 SAVING IS NOT SUPPORTED AT THE MOMENT, ROM WILL BREAK!!!'
     }
     text += infoText
     if (japanese) {
@@ -195,99 +401,67 @@ function prepareMessages (tableBuffer, dataBuffers, languages) {
   let messages = List()
 
   let i = 0
-  while (i < tableBuffer.length) {
-    let messageId = tableBuffer.readUInt16BE(i)
-
-    // Reached the end of the first language
-    if (messageId === 0xFFFD) {
-      i += 16
-      break
-    }
-
-    let messageType = tableBuffer.readUInt8(i + 2)
-    let messageAddress = tableBuffer.readUInt32BE(i + 4) & 0x00FFFFFF
-
-    let messageEnd = tableBuffer.readUInt32BE(i + 4 + 8) & 0x00FFFFFF
-
-    let japanese = languages[0] === 'Japanese'
-    let buffer = dataBuffers[0].slice(messageAddress, messageEnd)
-    let text = Parser.bufferToText(buffer, japanese)
-    let html = Parser.bufferToHtml(buffer, false, japanese)
-    let plaintext = Parser.bufferToHtml(buffer, true, japanese)
-    if (japanese) {
-      plaintext = japaneseStringToInternational(plaintext)
-    }
-
-    let data = new MessageDataRecord({
-      text: List([text]),
-      type: messageType >> 4,
-      position: messageType & 0x0F
-    })
-
-    /*
-    let compareBuffer = Parser.textToBuffer(text)
-    if (!buffer.equals(compareBuffer)) {
-      console.warn(`Message ${messageId} was changed when converting buffer -> text -> buffer`, buffer, compareBuffer)
-    }
-    */
-
-    messages = messages.push(new MessageRecord({
-      id: messageId,
-      data: data,
-      html: List([html]),
-      plaintext: List([plaintext])
-    }))
-
-    i += 8
-  }
-
-  console.log('Reading extra language entries')
-
-  let language = 1
+  let language = 0
+  const hasJapanese = languages.indexOf('Japanese') >= 0
   let counter = 0
-  while (i < tableBuffer.length) {
-    if (language >= dataBuffers.length) {
-      break
-    }
+  while (i < tableBuffer.length && language < languages.length) {
     let messageId
-
-    if (languages[language] === 'English') {
-      // Special handling for English in NTSC version
+    if (language === 0 || hasJapanese) {
       messageId = tableBuffer.readUInt16BE(i)
-      if (messageId === 0xFFFD) {
-        break
-      }
-      i += 4
     } else {
       messageId = messages.getIn([counter, 'id'])
     }
-
-    if (messageId === 0xFFFC) {
-      counter = 0
-      language++
+    if (messageId === 0xFFFD) {
+      console.log(`Found 0xFFFD marker for language ${language + 1}`)
       i += 8
       continue
     }
-
-    let messageAddress = tableBuffer.readUInt32BE(i) & 0x00FFFFFF
-
-    let messageEnd
-    if (i + 8 < tableBuffer.length) {
-      messageEnd = tableBuffer.readUInt32BE(i + 4) & 0x00FFFFFF
-    } else {
-      messageEnd = dataBuffers[language].length
+    // Reached the end of japanese/english or a PAL translation
+    if (messageId === 0xFFFF || (!hasJapanese && language > 0 && messageId === 0xFFFC)) {
+      console.log(`Found 0x${messageId.toString(16).toUpperCase()} marker for language ${language + 1}`)
+      i += 8
+      language++
+      counter = 0
+      continue
     }
+
     let index = messages.findIndex(message =>
       message.get('id') === messageId
     )
-    // FIXME: English entries that do not have a japanese equivalent are skipped!
-    if (index >= 0) {
-      let buffer = dataBuffers[language].slice(messageAddress, messageEnd)
-      let text = Parser.bufferToText(buffer)
-      messages = messages.setIn([index, 'data', 'text', language], text)
-      messages = messages.setIn([index, 'html', language], Parser.bufferToHtml(buffer))
-      messages = messages.setIn([index, 'plaintext', language], Parser.bufferToHtml(buffer, true))
+
+    let message
+    if (index < 0) {
+      message = new MessageRecord({id: messageId})
+      index = messages.size
+    } else {
+      message = messages.get(index)
     }
+    let messageAddress
+    let messageEnd
+    if (language === 0 || hasJapanese) {
+      let messageType = tableBuffer.readUInt8(i + 2)
+      message = message.setIn(['data', 'type'], messageType >> 4)
+      message = message.setIn(['data', 'position'], messageType & 0x0F)
+      i += 4
+      messageEnd = tableBuffer.readUInt32BE(i + 8) & 0x00FFFFFF
+    } else {
+      messageEnd = tableBuffer.readUInt32BE(i + 4) & 0x00FFFFFF
+    }
+    messageAddress = tableBuffer.readUInt32BE(i) & 0x00FFFFFF
+
+    const isJapanese = languages[language] === 'Japanese'
+    let buffer = dataBuffers[language].slice(messageAddress, messageEnd)
+    let text = Parser.bufferToText(buffer, isJapanese)
+    let html = Parser.bufferToHtml(buffer, false, isJapanese)
+    let plaintext = Parser.bufferToHtml(buffer, true, isJapanese)
+    if (isJapanese) {
+      plaintext = japaneseStringToInternational(plaintext)
+    }
+    message = message.setIn(['data', 'text', language], text)
+    message = message.setIn(['html', language], html)
+    message = message.setIn(['plaintext', language], plaintext)
+    messages = messages.set(index, message)
+
     i += 4
     counter++
   }
@@ -296,7 +470,6 @@ function prepareMessages (tableBuffer, dataBuffers, languages) {
     messages = messages.setIn([i, 'original'], messages.getIn([i, 'data']))
   }
 
-  console.log(messages.toJS())
   return messages
 }
 
@@ -323,7 +496,7 @@ function saveMessagesAsText (messages, languages) {
       }
     }
   }
-  for (let lang = 0; lang < languages; lang++) {
+  for (let lang = 0; lang < languages.length; lang++) {
     textOutputs[lang] = textOutputs[lang].join('\n\n')
   }
   return textOutputs.join('\n')
@@ -331,8 +504,10 @@ function saveMessagesAsText (messages, languages) {
 
 function saveMessages (messages, languages) {
   messages = messages.shift() // Exclude the special 0 message
+  messages = messages.sortBy(message => message.get('id'))
   const tableBuffers = []
   const dataBuffers = []
+  const hasJapanese = languages.indexOf('Japanese') >= 0
   for (let i = 0; i < languages.length; i++) {
     dataBuffers[i] = Buffer.alloc(0)
     tableBuffers[i] = Buffer.alloc(0)
@@ -345,25 +520,35 @@ function saveMessages (messages, languages) {
     const type = message.getIn(['data', 'type']) & 0x0F
     const position = message.getIn(['data', 'position']) & 0x0F
     for (let lang = 0; lang < languages.length; lang++) {
+      // TODO: Can remove other languages from the game by simply skipping them here, the game should still run properly.
+      // if (lang !== 0) {
+      //   break
+      // }
+      const isJapanese = languages[lang] === 'Japanese'
+      const bank = isJapanese ? 0x08000000 : 0x07000000
       const text = message.getIn(['data', 'text', lang])
+      if (typeof text === 'undefined' && hasJapanese) {
+        console.log(`0x${id.toString(16).toUpperCase()} does not exist for ${languages[lang]}, skipping entry`)
+        continue
+      }
       const offset = dataBuffers[lang].length
-      let buffer = Parser.textToBuffer(text, languages[lang] === 'Japanese')
+      let buffer = Parser.textToBuffer(text, isJapanese)
       let newTableEntry
-      if (lang === 0) {
-        if (id === 0xFFFC) {
-          fffcStart = 0x07000000 | offset
-          fffcEnd = fffcStart + buffer.length
-          console.log('saving message 0xFFFC', fffcStart.toString(16), fffcEnd.toString(16))
-        }
+      if (lang === 0 && id === 0xFFFC) {
+        fffcStart = bank | offset
+        fffcEnd = fffcStart + buffer.length
+        console.log('saving message 0xFFFC', fffcStart.toString(16), fffcEnd.toString(16))
+      }
+      if (lang === 0 || hasJapanese) {
+        // First language and NTSC are complete with id, type, position & address
         newTableEntry = Buffer.alloc(8)
         newTableEntry.writeUInt16BE(id, 0)
         newTableEntry.writeUInt8((type << 4) | position, 2)
-        // FIXME: Japanese entries are 0x08000000
-        newTableEntry.writeUInt32BE(0x07000000 | offset, 4)
+        newTableEntry.writeUInt32BE(bank | offset, 4)
       } else {
+        // Additional languages on PAL only have address
         newTableEntry = Buffer.alloc(4)
-        // FIXME: Japanese entries are 0x08000000
-        newTableEntry.writeUInt32BE(0x07000000 | offset, 0)
+        newTableEntry.writeUInt32BE(bank | offset, 0)
       }
       tableBuffers[lang] = Buffer.concat([tableBuffers[lang], newTableEntry])
       dataBuffers[lang] = Buffer.concat([dataBuffers[lang], buffer])
@@ -378,7 +563,6 @@ function saveMessages (messages, languages) {
       appendBuffer.writeUInt16BE(0xFFFF, 8)
       tableBuffers[lang] = Buffer.concat([tableBuffers[lang], appendBuffer])
     } else {
-      // FIXME: English entries on NTSC are complete with ID, type & position
       // We add the 0x00000000 end markers to the extra languages
       tableBuffers[lang] = Buffer.concat([tableBuffers[lang], Buffer.alloc(4)])
     }
@@ -406,11 +590,53 @@ function getFileBuffer (tableAddress, buffer, fileId) {
 
 function getGameId (buffer) {
   let id = buffer.readUInt32BE(0x3B)
-  if (id === 0x435A4C4A || id === 0x435A4C55) { // NTSC-J or NTSC-U
-    if (buffer.readUInt8(0x3F) === 0) { // Version 1.0
+  let ver = buffer.readUInt8(0x3F)
+  if (id === 0x435A4C4A || id === 0x435A4C45) { // NTSC-J or NTSC-U
+    if (ver === 0) { // Version 1.0
       return 'ntsc10'
+    } else if (ver === 1) { // Version 1.1
+      return 'ntsc11'
+    } else if (ver === 2) { // Version 1.2
+      return 'ntsc12'
+    }
+  } else if (id === 0x4E5A4C50) { // PAL
+    if (ver === 0) { // Version 1.0
+      return 'pal10'
+    } else if (ver === 1) { // Version 1.1
+      return 'pal11'
+    }
+  } else if (id === 0x4E5A4C45) { // Debug
+    return 'debug'
+  } else { // Unknown ROM ID
+    console.log('Unknown ROM ID, assuming debug')
+    return 'debug'
+  }
+  if (ver === 15) { // GCN and MQ
+    let configs = []
+    let messageCheck = 0x08000000
+    if (id === 0x435A4C4A) {
+      configs = ['jpnmq', 'ntsczc', 'jpngcn']
+    } else if (id === 0x435A4C45) {
+      configs = ['usamq', 'ntsczc']
+    } else if (id === 0x4E5A4C50) {
+      messageCheck = 0x07000000
+      configs = ['palmq', 'palgcn']
+    }
+    for (let configName of configs) {
+      let config = ROM_CONFIG[configName]
+      let codeAddress = buffer.readUInt32BE(config.dma_table_address + 0x10 * config.code)
+      let messageTest = buffer.readUInt32BE(codeAddress + config.message_table_offset + 4)
+      if (messageTest === messageCheck) {
+        let fffcTest = buffer.readUInt16BE(codeAddress + config.fffc[0][0])
+        if (fffcTest === config.fffc[0][1] >>> 16) {
+          console.log(`The ROM is probably ${configName}`)
+          return configName
+        }
+      }
     }
   }
+  // Unknown OoT build
+  console.log('Unknown OoT Revision, assuming debug')
   return 'debug'
 }
 
@@ -425,26 +651,7 @@ export function saveFile () {
 
     let [tableBuffer, dataBuffers, fffcRange] = saveMessages(messages, config.languages)
 
-    console.log(fffcRange[0].toString(16), fffcRange[1].toString(16))
-
-    // TEST COMPARE START
     let [codeStart] = getFileAddress(config.dma_table_address, buffer, config.code)
-    let compareBuffer = buffer.slice(
-      codeStart + config.message_table_offset,
-      codeStart + config.message_table_offset + 0x8448
-    )
-    if (tableBuffer.equals(compareBuffer)) {
-      console.log('Output is identical!')
-    } else {
-      for (let i = 0; i < compareBuffer.length && i < tableBuffer.length; i += 8) {
-        let ida = compareBuffer.readUInt16BE(i)
-        let idb = tableBuffer.readUInt16BE(i)
-        if (ida !== idb) {
-          console.log(`ID ${ida.toString(16).toUpperCase()} has changed to ${idb.toString(16).toUpperCase()}!`)
-        }
-      }
-    }
-    // TEST COMPARE END
 
     // Write message table
     buffer = Buffer.concat([
@@ -452,8 +659,6 @@ export function saveFile () {
       tableBuffer,
       buffer.slice(codeStart + config.message_table_offset + tableBuffer.length)
     ])
-
-    console.log('table', tableBuffer)
 
     // Write language data & update size in file table
     let prevEnd = 0
@@ -471,10 +676,10 @@ export function saveFile () {
     }
 
     // Fix hardcoded FFFC start and end address
-    buffer.writeUInt32BE(0x3C080000 | fffcRange[0] >>> 16, codeStart + 0x520B4) // 0x3C08 = LUI T0
-    buffer.writeUInt32BE(0x35080000 | fffcRange[0] & 0xFFFF, codeStart + 0x520B8) // 0x3508 = ORI T0, T0
-    buffer.writeUInt32BE(0x3C0F0000 | fffcRange[1] >>> 16, codeStart + 0x520C4) // 0x3C0F = LUI T7
-    buffer.writeUInt32BE(0x35EF0000 | fffcRange[1] & 0xFFFF, codeStart + 0x520F0) // 0x35EF = ORI T7, T7
+    buffer.writeUInt32BE(config.fffc[0][1] | (fffcRange[0] >>> 16), codeStart + config.fffc[0][0])
+    buffer.writeUInt32BE(config.fffc[1][1] | (fffcRange[0] & 0xFFFF), codeStart + config.fffc[1][0])
+    buffer.writeUInt32BE(config.fffc[2][1] | (fffcRange[1] >>> 16), codeStart + config.fffc[2][0])
+    buffer.writeUInt32BE(config.fffc[3][1] | (fffcRange[1] & 0xFFFF), codeStart + config.fffc[3][0])
 
     let blob = new Blob([buffer])
     FileSaver.saveAs(blob, name)
@@ -482,20 +687,6 @@ export function saveFile () {
     dispatch({
       type: FILE.FILE_SAVED
     })
-
-    // 0x520B4 = 0x3C080000 | 0x0703    // 0x3C08 = LUI T0
-    // 0x520B8 = 0x350880D4 | 0x80D4    // 0x3508 = ORI T0, T0
-    // 0x520C4 = 0x3C0F0000 | 0x0703    // 0x3C0F = LUI T7
-    // 0x520F0 = 0x35EF0000 | 0x811C    // 0x35EF = ORI T7, T7
-
-    // 0xFFFC 0x00 0x00 0x070380D4
-    // 0xFFFD 0x00 0x00 0x0703811C
-
-    // 0x8006EF14 = 0x0703 (upper half of 0xFFFC start)
-    // 0x8006EF18 = 0x80D4 (lower half of 0xFFFC start)
-
-    // 0x8006EF24 = 0x0703 (upper half of 0xFFFC end)
-    // 0x8006EF50 = 0x811C (lower half of 0xFFFC end)
   }
 }
 
@@ -504,10 +695,8 @@ export function setFile (buffer, name) {
     let gameId = getGameId(buffer)
     let config = ROM_CONFIG[gameId]
 
-    // FIXME: Load until first 0xFFFD instead of hardcoded 0x8448 length?
     let [codeStart] = getFileAddress(config.dma_table_address, buffer, config.code)
-    let messageTableBuffer = buffer.slice(codeStart + config.message_table_offset, codeStart + config.message_table_offset + 0x8448)
-
+    let messageTableBuffer = buffer.slice(codeStart + config.message_table_offset)
     Parser.iconItemStatic = getFileBuffer(config.dma_table_address, buffer, config.icon_item_static)
     Parser.iconItem24Static = getFileBuffer(config.dma_table_address, buffer, config.icon_item_24_static)
     Parser.messageStatic = getFileBuffer(config.dma_table_address, buffer, config.message_static)

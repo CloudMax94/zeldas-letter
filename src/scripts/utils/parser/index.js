@@ -613,7 +613,7 @@ class MessageEditorParser {
           state.x += Math.floor(16 * fontScale)
         }
       } else {
-        console.log(char, this.characterWidth[char], Math.floor(this.characterWidth[char] * fontScale))
+        // console.log(char, this.characterWidth[char], Math.floor(this.characterWidth[char] * fontScale))
         state.x += Math.floor(this.characterWidth[char] * fontScale)
       }
     }
@@ -783,6 +783,7 @@ class MessageEditorParser {
         let argLen = controlCode.args || 0
         if ('render' in controlCode) {
           if (controlCode.render === true) {
+            console.log('print control code character', val)
             await printCharacter(val)
           } else if (typeof controlCode.render === 'string') {
             await printText(controlCode.render)

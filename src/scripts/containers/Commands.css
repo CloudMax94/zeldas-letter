@@ -1,0 +1,39 @@
+.commands {
+  background: #111;
+  display: flex;
+  flex-direction: column;
+
+  max-height: 50vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.command {
+  display: flex;
+  background: #222;
+  color: #fff;
+  padding: 1rem;
+  line-height: 1.25em;
+  cursor: pointer;
+
+  &:focus {
+    outline: 0;
+    background: #333;
+  }
+
+  & + & {
+    border-top: 1px solid #111;
+  }
+}
+
+.command--active {
+  composes: command;
+  outline: 0;
+  background: #333;
+}
+
+.accelerator {
+  margin-left: auto;
+  color: grey;
+  align-self: center;
+}

@@ -1,11 +1,14 @@
-var path = require('path')
-var webpack = require('webpack')
+const path = require('path')
+const webpack = require('webpack')
 
-var HtmlWebpackPlugin = require('html-webpack-plugin')
-var FaviconsWebpackPlugin = require('favicons-webpack-plugin')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const FaviconsWebpackPlugin = require('favicons-webpack-plugin')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
-var isProduction = process.argv.indexOf('-p') > -1
+const isProduction = process.argv.indexOf('-p') > -1
+
+const port = process.env.PORT || 80
+const host = process.env.HOST || '127.0.0.1'
 
 module.exports = {
   entry: [
@@ -17,6 +20,7 @@ module.exports = {
     publicPath: './',
     filename: 'mudora.js'
   },
+  cache: true,
   module: {
     rules: [
       {
@@ -67,9 +71,24 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.css']
+    extensions: ['.js', '.css']
   },
   devtool: 'source-map',
+  devServer: {
+    compress: true,
+    noInfo: true,
+    stats: 'errors-only',
+    inline: true,
+    lazy: false,
+    watchOptions: {
+      aggregateTimeout: 300,
+      poll: 100
+    },
+    https: true,
+    port,
+    host,
+    publicPath: `https://${host}:${port}`
+  },
   plugins: [
     new FaviconsWebpackPlugin({
       // Your source logo

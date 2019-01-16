@@ -1,5 +1,3 @@
-// TODO: Use character offset table from 801501B0 (DEBUG)
-
 export const endOfMessage = 0x02
 
 // TODO: Check if 0x0B skips remaining text / hide button
@@ -255,7 +253,6 @@ for (let char of accentedCharacters) {
   i++
 }
 
-// FIXME: [+] does not work. + not supported in tags?
 let specialCharacters = [
   'A', 'B', 'C', 'L', 'R', 'Z',
   '^', 'v', '<', '>', 'TARGET', 'STICK', '+'
