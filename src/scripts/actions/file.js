@@ -324,7 +324,7 @@ Hylian can also be written as rōmaji:
 {ma}{mi} {mu}{me}{mo}  {ra}{ri} {ru} {re}{ro}
 {ya}     {yu}    {yo}  {wa}          {n} {wo}`
 
-const versionString = `Version 0.2.0`
+const versionString = `Version 0.2.1`
 
 const versionStringInt = `
 
@@ -625,7 +625,13 @@ function getGameId (buffer) {
     for (let configName of configs) {
       let config = ROM_CONFIG[configName]
       let codeAddress = buffer.readUInt32BE(config.dma_table_address + 0x10 * config.code)
-      let messageTest = buffer.readUInt32BE(codeAddress + config.message_table_offset + 4)
+      let offset = codeAddress + config.message_table_offset + 4
+      // Make sure that we don't read past the buffer
+      if (offset + 4 >= buffer.length) {
+        continue
+      }
+      let messageTest = buffer.readUInt32BE(offset)
+      console.log(messageTest)
       if (messageTest === messageCheck) {
         let fffcTest = buffer.readUInt16BE(codeAddress + config.fffc[0][0])
         if (fffcTest === config.fffc[0][1] >>> 16) {
