@@ -3,7 +3,7 @@ import './Commands.css'
 import { List, Map } from 'immutable'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { saveFile } from '../actions/file'
+import { saveFile, setMessageDeleteState, undoMessageChanges, removeExtraLanguages } from '../actions/file'
 import { setMessage } from '../actions/editor'
 import { toggleHorizontalPreview } from '../actions/settings'
 
@@ -30,31 +30,69 @@ class Commands extends Component {
         title: 'Application: Save ROM',
         accelerator: 'cmdorctrl+S',
         action: () => {
-          this.props.saveFile()
+          if (this.props.loaded) {
+            this.props.saveFile()
+          }
         }
       }),
       new Map({
         title: 'Application: Help (Go to Message 0x0000 / 0)',
         action: () => {
-          this.props.setMessage(0)
+          if (this.props.loaded) {
+            this.props.setMessage(0)
+          }
         }
       }),
       new Map({
         title: 'Message: Finder',
         accelerator: 'cmdorctrl+F',
         action: () => {
+          if (this.props.loaded) {
+            this.props.openFinder()
+            return false
+          }
         }
       }),
       new Map({
         title: 'Message: Go To',
         accelerator: 'cmdorctrl+G',
         action: () => {
+          if (this.props.loaded) {
+            this.props.openGoto()
+            return false
+          }
+        }
+      }),
+      new Map({
+        title: 'Message: Delete',
+        accelerator: 'cmdorctrl+D',
+        action: () => {
+          if (this.props.loaded) {
+            this.props.setMessageDeleteState(true)
+          }
+        }
+      }),
+      new Map({
+        title: 'Message: Undo Changes',
+        accelerator: 'cmdorctrl+R',
+        action: () => {
+          if (this.props.loaded) {
+            this.props.undoMessageChanges()
+          }
         }
       }),
       new Map({
         title: 'Interface: Toggle Layout',
         action: () => {
           this.props.toggleHorizontalPreview()
+        }
+      }),
+      new Map({
+        title: 'ROM: Remove Extra Languages',
+        action: () => {
+          if (this.props.loaded) {
+            this.props.removeExtraLanguages()
+          }
         }
       })
     ])
@@ -74,10 +112,14 @@ class Commands extends Component {
   }
   handleCommandClick = (event, id) => {
     const {close} = this.props
-    if (this.commands.get(id).has('action')) {
-      this.commands.getIn([id, 'action'])()
-    }
     event.preventDefault()
+    let action = this.commands.get(id).get('action')
+    if (action) {
+      // if action returns false, we don't trigger close
+      if (action() === false) {
+        return
+      }
+    }
     close()
   }
   handleKeydown = (event) => {
@@ -123,11 +165,13 @@ class Commands extends Component {
 }
 
 function mapStateToProps (state) {
-  return {}
+  return {
+    loaded: !!state.file.get('buffer')
+  }
 }
 
 function mapDispatchToProps (dispatch) {
-  return bindActionCreators({saveFile, setMessage, toggleHorizontalPreview}, dispatch)
+  return bindActionCreators({saveFile, setMessageDeleteState, undoMessageChanges, removeExtraLanguages, setMessage, toggleHorizontalPreview}, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Commands)

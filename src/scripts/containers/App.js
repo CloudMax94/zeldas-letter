@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import './App.css'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { setFile, saveFile } from '../actions/file'
+import { setFile, saveFile, setMessageDeleteState, undoMessageChanges } from '../actions/file'
 
 import Landing from '../components/Landing'
 import Editor from './Editor'
@@ -41,10 +41,18 @@ class App extends Component {
   }
 
   openFinder = () => {
+    if (!this.props.loaded) {
+      this.closeDialog()
+      return
+    }
     this.openDialog(DIALOG_FINDER)
   }
 
   openGoto = () => {
+    if (!this.props.loaded) {
+      this.closeDialog()
+      return
+    }
     this.openDialog(DIALOG_GOTO)
   }
 
@@ -72,6 +80,11 @@ class App extends Component {
     if (event.which === 27) {
       event.preventDefault()
       this.closeDialog()
+    } else if (cmdorctrlKey && event.which === 68) {
+      event.preventDefault()
+      if (loaded) {
+        this.props.setMessageDeleteState(true)
+      }
     } else if (cmdorctrlKey && event.which === 70) {
       event.preventDefault()
       if (this.state.dialog !== DIALOG_FINDER) {
@@ -86,6 +99,9 @@ class App extends Component {
       } else {
         this.closeDialog()
       }
+    } else if (cmdorctrlKey && event.which === 79) {
+      event.preventDefault()
+      this.showFileOpener()
     } else if (cmdorctrlKey && event.which === 80) {
       event.preventDefault()
       if (this.state.dialog !== DIALOG_COMMANDS) {
@@ -93,14 +109,16 @@ class App extends Component {
       } else {
         this.closeDialog()
       }
+    } else if (cmdorctrlKey && event.which === 82) {
+      event.preventDefault()
+      if (loaded) {
+        this.props.undoMessageChanges()
+      }
     } else if (cmdorctrlKey && event.which === 83) {
       event.preventDefault()
       if (loaded) {
         this.props.saveFile()
       }
-    } else if (cmdorctrlKey && event.which === 79) {
-      event.preventDefault()
-      this.showFileOpener()
     }
   }
 
@@ -151,7 +169,7 @@ class App extends Component {
         {
           dialog === DIALOG_FINDER ? <Finder close={this.closeDialog} />
             : dialog === DIALOG_GOTO ? <Goto close={this.closeDialog} />
-              : dialog === DIALOG_COMMANDS ? <Commands close={this.closeDialog} showFileOpener={this.showFileOpener} />
+              : dialog === DIALOG_COMMANDS ? <Commands close={this.closeDialog} showFileOpener={this.showFileOpener} openFinder={this.openFinder} openGoto={this.openGoto} />
                 : null
         }
         {loaded ? [<Editor key='editor' />, <Changes key='changes' />] : <Landing />}
@@ -167,7 +185,7 @@ function mapStateToProps (state) {
 }
 
 function mapDispatchToProps (dispatch) {
-  return bindActionCreators({setFile, saveFile}, dispatch)
+  return bindActionCreators({setFile, saveFile, setMessageDeleteState, undoMessageChanges}, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

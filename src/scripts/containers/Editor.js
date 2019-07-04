@@ -141,6 +141,7 @@ class Editor extends Component {
               extraKeys: {
                 Tab: false,
                 'Shift-Tab': false,
+                'Ctrl-D': false
               },
               theme: 'monokai'
             }}

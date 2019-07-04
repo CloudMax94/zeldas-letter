@@ -1,3 +1,4 @@
+import * as EDITOR from '../constants/editor'
 import * as FILE from '../constants/file'
 
 import {List, Record} from 'immutable'
@@ -9,7 +10,7 @@ import FileSaver from 'file-saver'
 // TODO: Add a way to add your own configs. Probably in localstorage with a simple UI for it
 const ROM_CONFIG = {
   debug: {
-    dma_table_address: 0x00012F70,
+    dmadata_address: 0x00012F70,
     message_table_offset: 0x12E4C0,
     character_width_table_offset: 0x136BA0,
     icon_item_static: 7,
@@ -27,7 +28,7 @@ const ROM_CONFIG = {
     languages: ['English', 'German', 'French']
   },
   ntsc10: {
-    dma_table_address: 0x00007430,
+    dmadata_address: 0x00007430,
     message_table_offset: 0x0F98AC,
     character_width_table_offset: 0x101EA0,
     icon_item_static: 8,
@@ -46,7 +47,7 @@ const ROM_CONFIG = {
     languages: ['Japanese', 'English']
   },
   ntsc11: {
-    dma_table_address: 0x00007430,
+    dmadata_address: 0x00007430,
     message_table_offset: 0x0F9A6C,
     character_width_table_offset: 0x102060,
     icon_item_static: 8,
@@ -65,7 +66,7 @@ const ROM_CONFIG = {
     languages: ['Japanese', 'English']
   },
   ntsc12: {
-    dma_table_address: 0x00007960,
+    dmadata_address: 0x00007960,
     message_table_offset: 0x0F991C,
     character_width_table_offset: 0x101F10,
     icon_item_static: 8,
@@ -84,7 +85,7 @@ const ROM_CONFIG = {
     languages: ['Japanese', 'English']
   },
   ntsczc: { // ZC GCN (NTSC)
-    dma_table_address: 0x00007170,
+    dmadata_address: 0x00007170,
     message_table_offset: 0x0F8FAC,
     character_width_table_offset: 0x1015A0,
     icon_item_static: 8,
@@ -103,7 +104,7 @@ const ROM_CONFIG = {
     languages: ['Japanese', 'English']
   },
   jpngcn: { // GCN (J)
-    dma_table_address: 0x00007170,
+    dmadata_address: 0x00007170,
     message_table_offset: 0x0F8FCC,
     character_width_table_offset: 0x1015C0,
     icon_item_static: 8,
@@ -122,7 +123,7 @@ const ROM_CONFIG = {
     languages: ['Japanese', 'English']
   },
   jpnmq: { // Master Quest (J)
-    dma_table_address: 0x00007170,
+    dmadata_address: 0x00007170,
     message_table_offset: 0x0F8FAC,
     character_width_table_offset: 0x1015A0,
     icon_item_static: 8,
@@ -141,7 +142,7 @@ const ROM_CONFIG = {
     languages: ['Japanese', 'English']
   },
   usamq: { // Master Quest (U)
-    dma_table_address: 0x00007170,
+    dmadata_address: 0x00007170,
     message_table_offset: 0x0F8F8C,
     character_width_table_offset: 0x101580,
     icon_item_static: 8,
@@ -160,7 +161,7 @@ const ROM_CONFIG = {
     languages: ['Japanese', 'English']
   },
   pal10: {
-    dma_table_address: 0x00007950,
+    dmadata_address: 0x00007950,
     message_table_offset: 0x0F71DC,
     character_width_table_offset: 0x0FF8BC,
     icon_item_static: 7,
@@ -178,7 +179,7 @@ const ROM_CONFIG = {
     languages: ['English', 'German', 'French']
   },
   pal11: {
-    dma_table_address: 0x00007950,
+    dmadata_address: 0x00007950,
     message_table_offset: 0x0F721C,
     character_width_table_offset: 0x0FF8FC,
     icon_item_static: 7,
@@ -196,7 +197,7 @@ const ROM_CONFIG = {
     languages: ['English', 'German', 'French']
   },
   palgcn: { // GCN (PAL)
-    dma_table_address: 0x00007170,
+    dmadata_address: 0x00007170,
     message_table_offset: 0x0F6910,
     character_width_table_offset: 0x0FEFF0,
     icon_item_static: 7,
@@ -214,7 +215,7 @@ const ROM_CONFIG = {
     languages: ['English', 'German', 'French']
   },
   palmq: { // Master Quest (E)
-    dma_table_address: 0x00007170,
+    dmadata_address: 0x00007170,
     message_table_offset: 0x0F68F0,
     character_width_table_offset: 0x0FEFD0,
     icon_item_static: 7,
@@ -241,6 +242,7 @@ const MessageDataRecord = Record({
 
 const MessageRecord = Record({
   id: 0,
+  deleteState: false,
   data: new MessageDataRecord(),
   original: new MessageDataRecord(),
   html: List(),
@@ -258,13 +260,20 @@ function formatInfo (str) {
 
 const infoText = `
 
+[WARNING]
+Adding more messages than the game has by default, or too much text, can currently break the ROM.
+For Debug/PAL you can get around this by removing the extra languages from the ROM, making all space available to the first one.
+Extra languages can be removed through the command panel, which you can access with ${cmdorctrlString}+P.
+
 This message is excluded in searches and is not saved.
-It can be accessed directly by going to message 0.
+It can be accessed directly by going to message 0, or through the command panel.
 
 Shortcuts:
 ${formatInfo('cmdorctrl+P')}Bring up all commands
 ${formatInfo('cmdorctrl+F')}Search for message
 ${formatInfo('cmdorctrl+G')}Go to Message ID
+${formatInfo('cmdorctrl+D')}Delete current message
+${formatInfo('cmdorctrl+R')}Undo message changes
 ${formatInfo('cmdorctrl+O')}Open ROM file
 ${formatInfo('cmdorctrl+S')}Save ROM file
 
@@ -324,7 +333,7 @@ Hylian can also be written as rōmaji:
 {ma}{mi} {mu}{me}{mo}  {ra}{ri} {ru} {re}{ro}
 {ya}     {yu}    {yo}  {wa}          {n} {wo}`
 
-const versionString = `Version 0.2.1`
+const versionString = `Version 0.3.0`
 
 const versionStringInt = `
 
@@ -517,13 +526,13 @@ function saveMessages (messages, languages) {
   for (let i = 0; i < messages.size; i++) {
     const message = messages.get(i)
     const id = message.get('id')
+    if (message.get('deleteState')) {
+      console.log(`0x${id.toString(16).toUpperCase()} was marked for deletion, skipping entry`)
+      continue
+    }
     const type = message.getIn(['data', 'type']) & 0x0F
     const position = message.getIn(['data', 'position']) & 0x0F
     for (let lang = 0; lang < languages.length; lang++) {
-      // TODO: Can remove other languages from the game by simply skipping them here, the game should still run properly.
-      // if (lang !== 0) {
-      //   break
-      // }
       const isJapanese = languages[lang] === 'Japanese'
       const bank = isJapanese ? 0x08000000 : 0x07000000
       const text = message.getIn(['data', 'text', lang])
@@ -624,7 +633,7 @@ function getGameId (buffer) {
     }
     for (let configName of configs) {
       let config = ROM_CONFIG[configName]
-      let codeAddress = buffer.readUInt32BE(config.dma_table_address + 0x10 * config.code)
+      let codeAddress = buffer.readUInt32BE(config.dmadata_address + 0x10 * config.code)
       let offset = codeAddress + config.message_table_offset + 4
       // Make sure that we don't read past the buffer
       if (offset + 4 >= buffer.length) {
@@ -652,12 +661,13 @@ export function saveFile () {
     let messages = store.get('messages')
     let buffer = store.get('buffer')
     let name = store.get('name')
+    let languages = store.get('languages').toJS()
 
     let config = ROM_CONFIG[getGameId(buffer)]
 
-    let [tableBuffer, dataBuffers, fffcRange] = saveMessages(messages, config.languages)
+    let [tableBuffer, dataBuffers, fffcRange] = saveMessages(messages, languages)
 
-    let [codeStart] = getFileAddress(config.dma_table_address, buffer, config.code)
+    let [codeStart] = getFileAddress(config.dmadata_address, buffer, config.code)
 
     // Write message table
     buffer = Buffer.concat([
@@ -670,14 +680,22 @@ export function saveFile () {
     let prevEnd = 0
     for (let i = 0; i < config.message_data_static.length; i++) {
       let fileId = config.message_data_static[i]
-      let [langStart] = getFileAddress(config.dma_table_address, buffer, fileId)
+      if (i >= languages.length) {
+        // Language has been removed, set its start and end location to that
+        // of the previous language.
+        let entryAddress = config.dmadata_address + fileId * 0x10
+        buffer.writeUInt32BE(prevEnd, entryAddress + 0x0)
+        buffer.writeUInt32BE(prevEnd, entryAddress + 0x4)
+        continue
+      }
+      let [langStart] = getFileAddress(config.dmadata_address, buffer, fileId)
       if (langStart < prevEnd) {
         console.warn(`Language ${i} data is overlapping the end of language ${i - 1}!`)
       }
       let dataBuffer = dataBuffers[i]
       console.log(`lang ${i} ${langStart.toString(16).toUpperCase()}-${(langStart + dataBuffer.length).toString(16).toUpperCase()}`, dataBuffer)
       buffer = Buffer.concat([buffer.slice(0, langStart), dataBuffer, buffer.slice(langStart + dataBuffer.length)])
-      setFileLength(config.dma_table_address, buffer, fileId, dataBuffer.length)
+      setFileLength(config.dmadata_address, buffer, fileId, dataBuffer.length)
       prevEnd = langStart + dataBuffer.length
     }
 
@@ -700,15 +718,16 @@ export function setFile (buffer, name) {
   return async (dispatch, getState) => {
     let gameId = getGameId(buffer)
     let config = ROM_CONFIG[gameId]
+    let languages = [...config.languages]
 
-    let [codeStart] = getFileAddress(config.dma_table_address, buffer, config.code)
+    let [codeStart] = getFileAddress(config.dmadata_address, buffer, config.code)
     let messageTableBuffer = buffer.slice(codeStart + config.message_table_offset)
-    Parser.iconItemStatic = getFileBuffer(config.dma_table_address, buffer, config.icon_item_static)
-    Parser.iconItem24Static = getFileBuffer(config.dma_table_address, buffer, config.icon_item_24_static)
-    Parser.messageStatic = getFileBuffer(config.dma_table_address, buffer, config.message_static)
-    Parser.nesFontStatic = getFileBuffer(config.dma_table_address, buffer, config.nes_font_static)
+    Parser.iconItemStatic = getFileBuffer(config.dmadata_address, buffer, config.icon_item_static)
+    Parser.iconItem24Static = getFileBuffer(config.dmadata_address, buffer, config.icon_item_24_static)
+    Parser.messageStatic = getFileBuffer(config.dmadata_address, buffer, config.message_static)
+    Parser.nesFontStatic = getFileBuffer(config.dmadata_address, buffer, config.nes_font_static)
     if (config.jpn_font_static) {
-      Parser.jpnFontStatic = getFileBuffer(config.dma_table_address, buffer, config.jpn_font_static)
+      Parser.jpnFontStatic = getFileBuffer(config.dmadata_address, buffer, config.jpn_font_static)
     }
     Parser.characterWidthData = buffer.slice(
       codeStart + config.character_width_table_offset,
@@ -716,18 +735,29 @@ export function setFile (buffer, name) {
     )
 
     let messageDataStaticBuffers = []
-    for (let fileId of config.message_data_static) {
-      messageDataStaticBuffers.push(getFileBuffer(config.dma_table_address, buffer, fileId))
+    for (let i = 0; i < config.message_data_static.length; i++) {
+      let fileId = config.message_data_static[i]
+      let staticBuffer = getFileBuffer(config.dmadata_address, buffer, fileId)
+      if (i > 0 && staticBuffer.length === 0) {
+        // If we reach a static buffer with 0 length, we assume that the
+        // remaining languages have been cut from the ROM, so we exclude them
+        languages = languages.slice(0, i)
+        break
+      }
+      messageDataStaticBuffers.push(staticBuffer)
     }
-    let messages = prepareMessages(messageTableBuffer, messageDataStaticBuffers, config.languages)
+    console.log(languages)
+    let messages = prepareMessages(messageTableBuffer, messageDataStaticBuffers, languages)
 
-    messages = prepareDefaultMessage(messages, gameId, config.languages)
+    console.log(saveMessagesAsText(messages, languages))
+
+    messages = prepareDefaultMessage(messages, gameId, languages)
     dispatch({
       type: FILE.SET_FILE,
       buffer: buffer,
       name: name,
       messages: messages,
-      languages: List(config.languages)
+      languages: List(languages)
     })
   }
 }
@@ -765,6 +795,90 @@ export function setMessageText (id, text, language) {
       html,
       plaintext,
       language
+    })
+  }
+}
+
+export function setMessageDeleteState (state, id) {
+  if (!id) {
+    return async (dispatch, getState) => {
+      dispatch({
+        type: FILE.SET_MESSAGE_DELETE_STATE,
+        id: getState().editor.get('message'),
+        state
+      })
+    }
+  }
+  return {
+    type: FILE.SET_MESSAGE_DELETE_STATE,
+    id,
+    state
+  }
+}
+
+export function undoMessageChanges (id) {
+  if (!id) {
+    return async (dispatch, getState) => {
+      dispatch({
+        type: FILE.UNDO_MESSAGE_CHANGES,
+        id: getState().editor.get('message')
+      })
+    }
+  }
+  return {
+    type: FILE.UNDO_MESSAGE_CHANGES,
+    id
+  }
+}
+
+export function createMessage (id) {
+  return async (dispatch, getState) => {
+    let languages = getState().file.get('languages')
+    let messages = getState().file.get('messages')
+
+    let texts = []
+    let html = []
+    let plaintext = []
+    for (let i = 0; i < languages.size; i++) {
+      let language = languages.get(i)
+      let japanese = language === 'Japanese'
+      let text = ''
+      texts.push(text)
+      let buffer = Parser.textToBuffer(text, japanese)
+      html.push(Parser.bufferToHtml(buffer, false, japanese))
+      plaintext.push(Parser.bufferToHtml(buffer, true, japanese))
+    }
+
+    let messageData = new MessageDataRecord({
+      text: List(texts),
+      type: 0,
+      position: 0
+    })
+
+    let message = new MessageRecord({
+      id,
+      original: false,
+      data: messageData,
+      html: List(html),
+      plaintext: List(plaintext)
+    })
+
+    dispatch({
+      type: FILE.SET_MESSAGES,
+      messages: messages.push(message)
+    })
+  }
+}
+
+export function removeExtraLanguages () {
+  return async (dispatch, getState) => {
+    dispatch({
+      type: EDITOR.SET_LANGUAGE,
+      id: 0
+    })
+    dispatch({
+      type: FILE.SET_LANGUAGES,
+      languages: getState().file.get('languages').slice(0, 1)
     })
   }
 }

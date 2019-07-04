@@ -20,12 +20,21 @@ class Changes extends Component {
   renderMessage = (message) => {
     const {language} = this.props
     const id = message.get('id')
+
+    let status = 'MODIFIED'
+    if (!message.get('original')) {
+      status = 'ADDED'
+    }
+    if (message.get('deleteState')) {
+      status = 'DELETED'
+    }
+
     return <div key={id} styleName='message' tabIndex='0'
       onClick={(event) => this.handleResultClick(event, id)}
       onKeyDown={(event) => this.handleResultKeydown(event, id)}
     >
       <div styleName='messageHeader'>
-        Message {hexId(id)} / {id}
+        Message {hexId(id)} / {id} [{status}]
       </div>
       <div styleName='messageContent' dangerouslySetInnerHTML={{__html: message.getIn(['html', language])}} />
     </div>
@@ -45,7 +54,7 @@ class Changes extends Component {
 
 function mapStateToProps (state) {
   let modifiedMessages = state.file.get('messages').shift().filter(message =>
-    !message.get('data').equals(message.get('original'))
+    message.get('deleteState') || !message.get('data').equals(message.get('original'))
   ) // Exclude the special 0 message
   return {
     language: state.editor.get('language'),

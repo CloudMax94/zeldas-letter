@@ -4,6 +4,7 @@ import './Goto.css'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { setMessage } from '../actions/editor'
+import { createMessage } from '../actions/file'
 import { hexId } from '../utils/format'
 import Dialog from '../components/Dialog'
 
@@ -21,7 +22,7 @@ class Goto extends Component {
     this.setState({text: event.target.value})
   }
   handleResultClick = (event) => {
-    const {messages, setMessage, close} = this.props
+    const {messages, setMessage, createMessage, close} = this.props
 
     event.preventDefault()
     let id = this.state.text
@@ -29,13 +30,14 @@ class Goto extends Component {
       id = parseInt(id)
       if (id === 0) {
         setMessage(id)
-      } else {
+      } else if (id <= 0xFFFC) {
         let message = messages.find(message =>
           message.get('id') === id
         )
-        if (message) {
-          setMessage(id)
+        if (!message) {
+          createMessage(id)
         }
+        setMessage(id)
       }
     }
     close()
@@ -93,7 +95,7 @@ function mapStateToProps (state) {
 }
 
 function mapDispatchToProps (dispatch) {
-  return bindActionCreators({setMessage}, dispatch)
+  return bindActionCreators({setMessage, createMessage}, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Goto)
