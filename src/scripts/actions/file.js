@@ -333,7 +333,7 @@ Hylian can also be written as rōmaji:
 {ma}{mi} {mu}{me}{mo}  {ra}{ri} {ru} {re}{ro}
 {ya}     {yu}    {yo}  {wa}          {n} {wo}`
 
-const versionString = `Version 0.3.0`
+const versionString = `Version 0.3.1`
 
 const versionStringInt = `
 
@@ -348,7 +348,7 @@ const versionStringJp = `
 
 
 
-[step=0x53]${versionString}
+[step=0x57]${versionString}
 [step=0x15]cloudmodding.com`
 
 const defaultMessageTexts = {
@@ -480,6 +480,33 @@ function prepareMessages (tableBuffer, dataBuffers, languages) {
   }
 
   return messages
+}
+
+function updateCRC (b) {
+  let t1, t2, t3, t4, t5, t6
+  t1 = t2 = t3 = t4 = t5 = t6 = 0xDF26F436
+  for (let i = 0x00001000; i < 0x00101000; i += 4) {
+    const d = b.readUInt32BE(i) >>> 0
+    const r = (((d) << (d & 0x1F)) | ((d) >>> (32 - (d & 0x1F)))) >>> 0
+    if (((t6 + d) >>> 0) < t6) { t4 = (t4 + 1) >>> 0 }
+    t6 += d; t6 >>>= 0
+    t3 ^= d; t3 >>>= 0
+    t5 += r; t5 >>>= 0
+    if (t2 > d) { t2 ^= r } else { t2 ^= (t6 ^ d) >>> 0 } t2 >>>= 0
+    t1 += (b.readUInt32BE(0x00000750 + (i & 0xFF)) ^ d); t1 >>>= 0
+  }
+  let crc = [
+    (t6 ^ t4 ^ t3) >>> 0,
+    (t5 ^ t2 ^ t1) >>> 0
+  ]
+  console.log(
+    'New CRC',
+    crc[0].toString(16).toUpperCase(),
+    crc[1].toString(16).toUpperCase()
+  )
+  // Write CRC to buffer
+  b.writeUInt32BE(crc[0], 0x10)
+  b.writeUInt32BE(crc[1], 0x14)
 }
 
 function saveMessagesAsText (messages, languages) {
@@ -704,6 +731,9 @@ export function saveFile () {
     buffer.writeUInt32BE(config.fffc[1][1] | (fffcRange[0] & 0xFFFF), codeStart + config.fffc[1][0])
     buffer.writeUInt32BE(config.fffc[2][1] | (fffcRange[1] >>> 16), codeStart + config.fffc[2][0])
     buffer.writeUInt32BE(config.fffc[3][1] | (fffcRange[1] & 0xFFFF), codeStart + config.fffc[3][0])
+
+    // Update the CRC
+    updateCRC(buffer)
 
     let blob = new Blob([buffer])
     FileSaver.saveAs(blob, name)
