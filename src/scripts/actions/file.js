@@ -778,10 +778,8 @@ export function setFile (buffer, name) {
     }
     console.log(languages)
     let messages = prepareMessages(messageTableBuffer, messageDataStaticBuffers, languages)
-
-    console.log(saveMessagesAsText(messages, languages))
-
     messages = prepareDefaultMessage(messages, gameId, languages)
+    console.log(saveMessagesAsText(messages, languages))
     dispatch({
       type: FILE.SET_FILE,
       buffer: buffer,
