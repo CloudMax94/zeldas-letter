@@ -36,7 +36,7 @@ class Changes extends Component {
       <div styleName='messageHeader'>
         Message {hexId(id)} / {id} [{status}]
       </div>
-      <div styleName='messageContent' dangerouslySetInnerHTML={{__html: message.getIn(['html', language])}} />
+      <div styleName='messageContent' dangerouslySetInnerHTML={{__html: message.getIn(['data', 'html', language])}} />
     </div>
   }
   render () {

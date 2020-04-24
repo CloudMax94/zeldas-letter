@@ -54,9 +54,10 @@ export default function file (state: Map<string, Object> = Map({
         return state
       }
       return state
+        .setIn(['messages', index, 'data', 'buffer', action.language], action.buffer)
         .setIn(['messages', index, 'data', 'text', action.language], action.text)
-        .setIn(['messages', index, 'html', action.language], action.html)
-        .setIn(['messages', index, 'plaintext', action.language], action.plaintext)
+        .setIn(['messages', index, 'data', 'plaintext', action.language], action.plaintext)
+        .setIn(['messages', index, 'data', 'html', action.language], action.html)
         .setIn(['messages', index, 'deleteState'], false)
     case FILE.UNDO_MESSAGE_CHANGES:
       index = state.get('messages').findIndex((message) => message.get('id') === action.id)

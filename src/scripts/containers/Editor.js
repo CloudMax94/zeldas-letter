@@ -29,12 +29,12 @@ class Editor extends Component {
   }
   async updateRender (messageData, language = this.props.language) {
     if (this.isRendering) {
-      this.queuedRender = messageData
+      this.queuedRender = true
       return
     }
-    let isJapanese = this.props.languages.get(language) === 'Japanese'
     this.isRendering = true
-    let buffer = Parser.textToBuffer(messageData.getIn(['text', language]), isJapanese)
+    let isJapanese = this.props.languages.get(language) === 'Japanese'
+    let buffer = messageData.getIn(['buffer', language])
     let renders = await Parser.renderMessage(
       buffer,
       messageData.get('type'),
@@ -46,9 +46,8 @@ class Editor extends Component {
     })
     this.isRendering = false
     if (this.queuedRender) {
-      messageData = this.queuedRender
       this.queuedRender = false
-      this.updateRender(messageData)
+      this.updateRender(this.props.message.get('data'))
     }
   }
   handleLanguage = (event) => {

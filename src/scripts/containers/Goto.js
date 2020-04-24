@@ -61,7 +61,7 @@ class Goto extends Component {
       <div styleName='resultHeader'>
         Message {hexId(id)} / {id}
       </div>
-      <div styleName='resultContent' dangerouslySetInnerHTML={{__html: message.getIn(['html', language])}} />
+      <div styleName='resultContent' dangerouslySetInnerHTML={{__html: message.getIn(['data', 'html', language])}} />
     </div>
   }
   render () {

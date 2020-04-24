@@ -235,7 +235,10 @@ const ROM_CONFIG = {
 }
 
 const MessageDataRecord = Record({
+  buffer: List(),
   text: List(),
+  plaintext: List(),
+  html: List(),
   type: 0,
   position: 0
 })
@@ -244,9 +247,7 @@ const MessageRecord = Record({
   id: 0,
   deleteState: false,
   data: new MessageDataRecord(),
-  original: new MessageDataRecord(),
-  html: List(),
-  plaintext: List()
+  original: new MessageDataRecord()
 })
 
 let cmdorctrlString = 'Ctrl'
@@ -333,7 +334,7 @@ Hylian can also be written as rōmaji:
 {ma}{mi} {mu}{me}{mo}  {ra}{ri} {ru} {re}{ro}
 {ya}     {yu}    {yo}  {wa}          {n} {wo}`
 
-const versionString = `Version 0.3.1`
+const versionString = `Version 0.3.2`
 
 const versionStringInt = `
 
@@ -341,14 +342,14 @@ const versionStringInt = `
 
 
 
-[step=0x1C]${versionString}
+[step=0x1B]${versionString}
 [step=0x10]cloudmodding.com`
 
 const versionStringJp = `
 
 
 
-[step=0x57]${versionString}
+[step=0x52]${versionString}
 [step=0x15]cloudmodding.com`
 
 const defaultMessageTexts = {
@@ -370,6 +371,7 @@ Geschrieben von [color=0x44]CloudMax[/color]${versionStringInt}[stay]`,
 }
 
 function prepareDefaultMessage (messages, gameId, languages) {
+  let buffers = []
   let texts = []
   let html = []
   let plaintext = []
@@ -386,21 +388,23 @@ function prepareDefaultMessage (messages, gameId, languages) {
     }
     texts.push(text)
     let buffer = Parser.textToBuffer(text, japanese)
+    buffers.push(buffer)
     html.push(Parser.bufferToHtml(buffer, false, japanese))
     plaintext.push(Parser.bufferToHtml(buffer, true, japanese))
   }
 
   let defaultMessageData = new MessageDataRecord({
+    buffer: List(buffers),
     text: List(texts),
+    plaintext: List(plaintext),
+    html: List(html),
     type: 2,
     position: 2
   })
 
   let defaultMessage = new MessageRecord({
     data: defaultMessageData,
-    original: defaultMessageData,
-    html: List(html),
-    plaintext: List(plaintext)
+    original: defaultMessageData
   })
 
   return messages.unshift(defaultMessage)
@@ -466,9 +470,10 @@ function prepareMessages (tableBuffer, dataBuffers, languages) {
     if (isJapanese) {
       plaintext = japaneseStringToInternational(plaintext)
     }
+    message = message.setIn(['data', 'buffer', language], buffer)
     message = message.setIn(['data', 'text', language], text)
-    message = message.setIn(['html', language], html)
-    message = message.setIn(['plaintext', language], plaintext)
+    message = message.setIn(['data', 'plaintext', language], plaintext)
+    message = message.setIn(['data', 'html', language], html)
     messages = messages.set(index, message)
 
     i += 4
@@ -568,7 +573,7 @@ function saveMessages (messages, languages) {
         continue
       }
       const offset = dataBuffers[lang].length
-      let buffer = Parser.textToBuffer(text, isJapanese)
+      const buffer = message.getIn(['data', 'buffer', lang])
       let newTableEntry
       if (lang === 0 && id === 0xFFFC) {
         fffcStart = bank | offset
@@ -587,7 +592,9 @@ function saveMessages (messages, languages) {
         newTableEntry.writeUInt32BE(bank | offset, 0)
       }
       tableBuffers[lang] = Buffer.concat([tableBuffers[lang], newTableEntry])
-      dataBuffers[lang] = Buffer.concat([dataBuffers[lang], buffer])
+      if (buffer) { // 0xFFFC does not have a buffer for other languages.. Think that's the only situation. TODO - FIXME - Make sure that this works properly
+        dataBuffers[lang] = Buffer.concat([dataBuffers[lang], buffer])
+      }
     }
   }
   for (let lang = 0; lang < languages.length; lang++) {
@@ -821,6 +828,7 @@ export function setMessageText (id, text, language) {
     dispatch({
       type: FILE.SET_MESSAGE_TEXT,
       id,
+      buffer,
       text,
       html,
       plaintext,
@@ -866,6 +874,7 @@ export function createMessage (id) {
     let languages = getState().file.get('languages')
     let messages = getState().file.get('messages')
 
+    let buffers = []
     let texts = []
     let html = []
     let plaintext = []
@@ -875,12 +884,16 @@ export function createMessage (id) {
       let text = ''
       texts.push(text)
       let buffer = Parser.textToBuffer(text, japanese)
+      buffers.push(buffer)
       html.push(Parser.bufferToHtml(buffer, false, japanese))
       plaintext.push(Parser.bufferToHtml(buffer, true, japanese))
     }
 
     let messageData = new MessageDataRecord({
+      buffer: List(buffers),
       text: List(texts),
+      plaintext: List(plaintext),
+      html: List(html),
       type: 0,
       position: 0
     })
@@ -888,9 +901,7 @@ export function createMessage (id) {
     let message = new MessageRecord({
       id,
       original: false,
-      data: messageData,
-      html: List(html),
-      plaintext: List(plaintext)
+      data: messageData
     })
 
     dispatch({

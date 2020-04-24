@@ -9,6 +9,7 @@ import Landing from '../components/Landing'
 import Editor from './Editor'
 import Changes from './Changes'
 import Finder from './Finder'
+import StatusBar from './StatusBar'
 import Goto from './Goto'
 import Commands from './Commands'
 
@@ -172,7 +173,7 @@ class App extends Component {
               : dialog === DIALOG_COMMANDS ? <Commands close={this.closeDialog} showFileOpener={this.showFileOpener} openFinder={this.openFinder} openGoto={this.openGoto} />
                 : null
         }
-        {loaded ? [<Editor key='editor' />, <Changes key='changes' />] : <Landing />}
+        {loaded ? <React.Fragment><div styleName='row'><Editor /><Changes /></div><StatusBar /></React.Fragment> : <Landing />}
       </div>
     )
   }

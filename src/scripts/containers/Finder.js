@@ -46,7 +46,7 @@ class Finder extends Component {
       <div styleName='resultHeader'>
         Message {hexId(id)} / {id}
       </div>
-      <div styleName='resultContent' dangerouslySetInnerHTML={{__html: message.getIn(['html', language])}} />
+      <div styleName='resultContent' dangerouslySetInnerHTML={{__html: message.getIn(['data', 'html', language])}} />
     </div>
   }
   render () {
@@ -59,7 +59,7 @@ class Finder extends Component {
         if (message.get('id') === 0xFFFC) {
           return false
         }
-        let plaintext = message.getIn(['plaintext', language])
+        let plaintext = message.getIn(['data', 'plaintext', language])
         return plaintext && plaintext.toLowerCase().indexOf(compareText) >= 0
       }).take(100)
     }
