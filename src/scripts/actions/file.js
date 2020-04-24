@@ -690,6 +690,8 @@ export function saveFile () {
     let name = store.get('name')
     let languages = store.get('languages').toJS()
 
+    console.log(saveMessagesAsText(messages, languages))
+
     let config = ROM_CONFIG[getGameId(buffer)]
 
     let [tableBuffer, dataBuffers, fffcRange] = saveMessages(messages, languages)
