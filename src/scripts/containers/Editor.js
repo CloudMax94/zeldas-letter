@@ -134,6 +134,7 @@ class Editor extends Component {
             value={text}
             options={{
               mode: 'mudora',
+              allowDropFileTypes: [],
               lineNumbers: true,
               lineWrapping: true,
               styleActiveLine: true,
