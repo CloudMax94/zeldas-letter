@@ -10,7 +10,7 @@ import JSZip from 'jszip'
 
 // TODO: Add a way to add your own configs. Probably in localstorage with a simple UI for it
 const ROM_CONFIG = {
-  debug: {
+  mqdebug: {
     dmadata_address: 0x00012F70,
     message_table_offset: 0x12E4C0,
     character_width_table_offset: 0x136BA0,
@@ -652,11 +652,11 @@ function getGameId (buffer) {
     } else if (ver === 1) { // Version 1.1
       return 'pal11'
     }
-  } else if (id === 0x4E5A4C45) { // Debug
-    return 'debug'
+  } else if (id === 0x4E5A4C45) { // MQ Debug
+    return 'mqdebug'
   } else { // Unknown ROM ID
-    console.log('Unknown ROM ID, assuming debug')
-    return 'debug'
+    console.log('Unknown ROM ID, assuming mq debug')
+    return 'mqdebug'
   }
   if (ver === 15) { // GCN and MQ
     let configs = []
@@ -689,8 +689,8 @@ function getGameId (buffer) {
     }
   }
   // Unknown OoT build
-  console.log('Unknown OoT Revision, assuming debug')
-  return 'debug'
+  console.log('Unknown OoT Revision, assuming mq debug')
+  return 'mqdebug'
 }
 
 export function saveFile () {
