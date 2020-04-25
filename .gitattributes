@@ -1,17 +1,6 @@
-# End of line
-* text eol=lf
+# Git is dumb as hell and start converting line breaks in binary files and such
+# so we don't use this shit anymore.
+# * text eol=lf
 
-# Custom for Visual Studio
-*.cs     diff=csharp
-
-# Standard to msysgit
-*.doc	 diff=astextplain
-*.DOC	 diff=astextplain
-*.docx diff=astextplain
-*.DOCX diff=astextplain
-*.dot  diff=astextplain
-*.DOT  diff=astextplain
-*.pdf  diff=astextplain
-*.PDF	 diff=astextplain
-*.rtf	 diff=astextplain
-*.RTF	 diff=astextplain
+# Because git was extremely dumb and tried to convert CR-LF to LF in PNG files
+*.png binary
