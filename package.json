@@ -46,6 +46,7 @@
     "html-webpack-template": "^6.1.0",
     "ieee754": "^1.1.8",
     "immutable": "^3.8.2",
+    "jszip": "^3.4.0",
     "normalize.css": "^7.0.0",
     "postcss-extend": "^1.0.5",
     "postcss-import": "^11.0.0",

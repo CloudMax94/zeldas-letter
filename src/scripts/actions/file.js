@@ -6,6 +6,7 @@ import { pad, japaneseStringToInternational } from '../utils/format'
 
 import Parser from '../utils/parser'
 import FileSaver from 'file-saver'
+import JSZip from 'jszip'
 
 // TODO: Add a way to add your own configs. Probably in localstorage with a simple UI for it
 const ROM_CONFIG = {
@@ -334,7 +335,7 @@ Hylian can also be written as rōmaji:
 {ma}{mi} {mu}{me}{mo}  {ra}{ri} {ru} {re}{ro}
 {ya}     {yu}    {yo}  {wa}          {n} {wo}`
 
-const versionString = `Version 0.3.2`
+const versionString = `Version 0.4.0`
 
 const versionStringInt = `
 
@@ -342,7 +343,7 @@ const versionStringInt = `
 
 
 
-[step=0x1B]${versionString}
+[step=0x1A]${versionString}
 [step=0x10]cloudmodding.com`
 
 const versionStringJp = `
@@ -527,6 +528,9 @@ function saveMessagesAsText (messages, languages) {
     const position = message.getIn(['data', 'position']) & 0x0F
     for (let lang = 0; lang < languages.length; lang++) {
       const text = message.getIn(['data', 'text', lang])
+      if (typeof text === 'undefined') {
+        continue
+      }
       if (lang === 0) {
         textOutputs[lang].push(`[message=${pad('0000', id.toString(16).toUpperCase())},${type.toString(16).toUpperCase()},${position.toString(16).toUpperCase()}]\n${text}`)
       } else {
@@ -538,9 +542,9 @@ function saveMessagesAsText (messages, languages) {
     }
   }
   for (let lang = 0; lang < languages.length; lang++) {
-    textOutputs[lang] = textOutputs[lang].join('\n\n')
+    textOutputs[lang] = textOutputs[lang].join('\n')
   }
-  return textOutputs.join('\n')
+  return '[zeldasletter,1]\n' + textOutputs.join('\n')
 }
 
 function saveMessages (messages, languages) {
@@ -697,8 +701,6 @@ export function saveFile () {
     let name = store.get('name')
     let languages = store.get('languages').toJS()
 
-    console.log(saveMessagesAsText(messages, languages))
-
     let config = ROM_CONFIG[getGameId(buffer)]
 
     let [tableBuffer, dataBuffers, fffcRange] = saveMessages(messages, languages)
@@ -747,6 +749,46 @@ export function saveFile () {
     let blob = new Blob([buffer])
     FileSaver.saveAs(blob, name)
 
+    dispatch({
+      type: FILE.FILE_SAVED
+    })
+  }
+}
+
+export function saveBinaries () {
+  return async (dispatch, getState) => {
+    let store = getState().file
+    let messages = store.get('messages')
+    let languages = store.get('languages').toJS()
+
+    let config = ROM_CONFIG[getGameId(store.get('buffer'))]
+
+    let [tableBuffer, dataBuffers] = saveMessages(messages, languages)
+
+    let zip = new JSZip()
+    zip.file('messages.txt', saveMessagesAsText(messages, languages))
+    zip.file('table.bin', tableBuffer)
+    for (let i = 0; i < config.message_data_static.length; i++) {
+      if (i >= languages.length) {
+        continue
+      }
+      zip.file(`${i}_message_data_static.bin`, dataBuffers[i])
+    }
+
+    zip.generateAsync({type: 'blob'}).then((content) => {
+      FileSaver.saveAs(content, `message-binaries.zip`)
+      dispatch({
+        type: FILE.FILE_SAVED
+      })
+    })
+  }
+}
+
+export function saveSourceText () {
+  return async (dispatch, getState) => {
+    let store = getState().file
+    let blob = new Blob([saveMessagesAsText(store.get('messages'), store.get('languages').toJS())], {type: 'text/plain;charset=utf-8'})
+    FileSaver.saveAs(blob, `${store.get('name')} - messages.txt`)
     dispatch({
       type: FILE.FILE_SAVED
     })

@@ -3,7 +3,7 @@ import './Commands.css'
 import { List, Map } from 'immutable'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { saveFile, setMessageDeleteState, undoMessageChanges, removeExtraLanguages } from '../actions/file'
+import { saveFile, saveSourceText, saveBinaries, setMessageDeleteState, undoMessageChanges, removeExtraLanguages } from '../actions/file'
 import { setMessage } from '../actions/editor'
 import { toggleHorizontalPreview } from '../actions/settings'
 
@@ -32,6 +32,22 @@ class Commands extends Component {
         action: () => {
           if (this.props.loaded) {
             this.props.saveFile()
+          }
+        }
+      }),
+      new Map({
+        title: 'Application: Save Source Text',
+        action: () => {
+          if (this.props.loaded) {
+            this.props.saveSourceText()
+          }
+        }
+      }),
+      new Map({
+        title: 'Application: Save Binaries',
+        action: () => {
+          if (this.props.loaded) {
+            this.props.saveBinaries()
           }
         }
       }),
@@ -171,7 +187,7 @@ function mapStateToProps (state) {
 }
 
 function mapDispatchToProps (dispatch) {
-  return bindActionCreators({saveFile, setMessageDeleteState, undoMessageChanges, removeExtraLanguages, setMessage, toggleHorizontalPreview}, dispatch)
+  return bindActionCreators({saveFile, saveSourceText, saveBinaries, setMessageDeleteState, undoMessageChanges, removeExtraLanguages, setMessage, toggleHorizontalPreview}, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Commands)
