@@ -263,9 +263,13 @@ function formatInfo (str) {
 const infoText = `
 
 [WARNING]
-Adding more messages than the game has by default, or too much text, can currently break the ROM.
-For Debug/PAL you can get around this by removing the extra languages from the ROM, making all space available to the first one.
+Adding more messages than the game has by default, or too much text, can currently break the ROM when saving as ROM.
+By using Save Binaries the allocation will be handled by supporting tools instead, which may or may not prevent this.
+For Debug/PAL you can get around this by removing the extra languages from the ROM, making all space available to the remaining one.
 Extra languages can be removed through the command panel, which you can access with ${cmdorctrlString}+P.
+
+It is good practice to save/load source text files rather than actively saving and loading a ROM.
+Saving as binaries include the source text in the generated zip.
 
 This message is excluded in searches and is not saved.
 It can be accessed directly by going to message 0, or through the command panel.
@@ -544,7 +548,7 @@ function saveMessagesAsText (messages, languages) {
   for (let lang = 0; lang < languages.length; lang++) {
     textOutputs[lang] = textOutputs[lang].join('\n')
   }
-  return '[zeldasletter,1]\n' + textOutputs.join('\n')
+  return '[zeldasletter=1]\n' + textOutputs.join('\n')
 }
 
 function saveMessages (messages, languages) {
@@ -837,6 +841,91 @@ export function setFile (buffer, name) {
       name: name,
       messages: messages,
       languages: List(languages)
+    })
+  }
+}
+
+export function loadSource (text) {
+  return async (dispatch, getState) => {
+    let store = getState().file
+    let buffer = store.get('buffer')
+    let languages = store.get('languages').toJS()
+
+    let gameId = getGameId(buffer)
+
+    let version = false
+    let currentLanguage = false
+    let currentMessage = false
+    let messages = {}
+    let rows = text.split('\n')
+    for (let i = 0; i < rows.length; i++) {
+      let row = rows[i]
+      if (!version) {
+        let result = row.match(/\[zeldasletter[,=]([1-9][0-9]*)\]/) // Initial release incorrectly used , instead of =. Oops.
+        if (result) {
+          version = result[1]
+        }
+        continue // Continue if not initialized yet
+      }
+      let langResult = rows[i].match(/\[language=([0-2])\]/)
+      if (langResult) {
+        currentLanguage = langResult[1]
+        currentMessage = false
+        continue
+      }
+      let msgResult = rows[i].match(/\[message=([0-F]+)(?:,([0-F]),([0-F]))?\]/)
+      if (msgResult) {
+        currentMessage = parseInt(msgResult[1], 16)
+        let msgType = parseInt(msgResult[2], 16) || 0
+        let msgPosition = parseInt(msgResult[3], 16) || 0
+        if (!(currentMessage in messages)) {
+          messages[currentMessage] = new MessageDataRecord({
+            type: msgType,
+            position: msgPosition
+          })
+        }
+        messages[currentMessage] = messages[currentMessage].setIn(['text', currentLanguage], '')
+        continue
+      }
+
+      if (currentMessage === false) {
+        continue
+      }
+
+      messages[currentMessage] = messages[currentMessage].setIn(
+        ['text', currentLanguage],
+        messages[currentMessage].getIn(['text', currentLanguage]) + (messages[currentMessage].getIn(['text', currentLanguage]) !== '' ? '\n' : '') + row
+      )
+    }
+
+    let messageList = List()
+    for (let [id, messageData] of Object.entries(messages)) {
+      for (let language = 0; language < messageData.get('text').size; language++) {
+        let text = messageData.getIn(['text', language])
+        if (typeof text === 'undefined') {
+          continue
+        }
+        let japanese = languages[language] === 'Japanese'
+        let buffer = Parser.textToBuffer(text, japanese)
+        let html = Parser.bufferToHtml(buffer, false, japanese)
+        let plaintext = Parser.bufferToHtml(buffer, true, japanese)
+        if (japanese) {
+          plaintext = japaneseStringToInternational(plaintext)
+        }
+        messageData = messageData.setIn(['buffer', language], buffer)
+        messageData = messageData.setIn(['plaintext', language], plaintext)
+        messageData = messageData.setIn(['html', language], html)
+      }
+      messageList = messageList.push(new MessageRecord({
+        id: parseInt(id),
+        original: messageData,
+        data: messageData
+      }))
+    }
+
+    dispatch({
+      type: FILE.SET_MESSAGES,
+      messages: prepareDefaultMessage(messageList, gameId, languages)
     })
   }
 }

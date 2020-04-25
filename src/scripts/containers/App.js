@@ -3,7 +3,8 @@ import React, { Component } from 'react'
 import './App.css'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { setFile, saveFile, setMessageDeleteState, undoMessageChanges } from '../actions/file'
+import { setFile, loadSource, saveFile, setMessageDeleteState, undoMessageChanges } from '../actions/file'
+import path from 'path'
 
 import Landing from '../components/Landing'
 import Editor from './Editor'
@@ -139,13 +140,27 @@ class App extends Component {
     if (!(file instanceof Blob)) {
       return
     }
-    const reader = new FileReader()
-    reader.onloadend = (e) => {
-      let buffer = Buffer.from(e.target.result)
-      let name = file.name
-      this.props.setFile(buffer, name)
+    const {loaded} = this.props
+    const extname = path.extname(file.name)
+    if (extname === '.txt') {
+      if (!loaded) {
+        return
+      }
+      const reader = new FileReader()
+      reader.onloadend = (e) => {
+        let text = e.target.result
+        this.props.loadSource(text)
+      }
+      reader.readAsText(file)
+    } else if (extname === '.z64') {
+      const reader = new FileReader()
+      reader.onloadend = (e) => {
+        let buffer = Buffer.from(e.target.result)
+        let name = file.name
+        this.props.setFile(buffer, name)
+      }
+      reader.readAsArrayBuffer(file)
     }
-    reader.readAsArrayBuffer(file)
   }
 
   handleDrop = (event) => {
@@ -186,7 +201,7 @@ function mapStateToProps (state) {
 }
 
 function mapDispatchToProps (dispatch) {
-  return bindActionCreators({setFile, saveFile, setMessageDeleteState, undoMessageChanges}, dispatch)
+  return bindActionCreators({setFile, loadSource, saveFile, setMessageDeleteState, undoMessageChanges}, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)
