@@ -229,6 +229,9 @@ class MessageEditorParser {
       }
     }
 
+    let pseudoCodes = ['center']
+    let pseudoCodeLocations = []
+
     while (text != null ? text.length : undefined) {
       let found = false
       // Check toBinary functions for a match
@@ -248,6 +251,15 @@ class MessageEditorParser {
       if (index in controlMatches) {
         let match = controlMatches[index]
         let tag = match.tag.toLowerCase()
+        if (pseudoCodes.indexOf(tag) >= 0) {
+          pseudoCodeLocations.push({
+            tag: tag,
+            pos: data.length, // the position in data that the pseudo code is located
+            argument: match.argument
+          })
+          step(match.length)
+          continue
+        }
         for (let [code, controlCode] of tagEntries) {
           if (controlCode.tag.toLowerCase() !== tag) {
             continue
@@ -293,11 +305,64 @@ class MessageEditorParser {
       data.push((eom >> (i * 8)) & 0xFF)
     }
 
-    let pad = data.length % 4
-    if (pad !== 0) {
-      data.length += 4 - pad
+    function wordPad (d) {
+      d = [...d]
+      let pad = d.length % 4
+      if (pad !== 0) {
+        d.length += 4 - pad
+      }
+      return d
     }
-    return Buffer.from(data)
+
+    if (pseudoCodeLocations.length) {
+      let buffer = Buffer.from(wordPad(data))
+      let boxes = []
+      let boxBreak = 0
+      let i = 0
+      let prevInfo = null
+      while (i < 50) { // safeguard, I don't want shit crashing when developing
+        let buff = buffer.slice(boxBreak)
+        let info = this.getBoxInfo(buff, prevInfo, japanese)
+        boxes.push([boxBreak, info])
+        if (info.boxBreak) {
+          boxBreak += info.boxBreak
+        } else {
+          break
+        }
+        if (info.nextMessage != null) {
+          break
+        }
+        prevInfo = info
+        i++
+      }
+
+      let shift = 0
+      for (let {tag, pos, argument} of pseudoCodeLocations) {
+        if (tag === 'center') {
+          for (let [offset, box] of boxes) {
+            let byteInfo = box.byteInfo[pos - offset]
+            if (byteInfo) {
+              let row = byteInfo[1]
+              let rowWidth = box.widths[row]
+              let startX = 65 - 34 // the box starts at 34x, so we subtract that
+              if (box.icon !== null && row > 0) {
+                startX += 32
+              }
+              // the box is 256px wide, so we center within it
+              let step = Math.max(0, Math.min(0xFF, Math.floor((256 - startX * 2 - rowWidth) / 2 + (parseInt(argument) || 0))))
+              if (step === 0) {
+                break // text is already centered, or can't be centered, do not add the control code to the buffer
+              }
+              data.splice(pos + shift, 0, 0x06, step)
+              shift += 2
+              break
+            }
+          }
+        }
+      }
+    }
+
+    return Buffer.from(wordPad(data))
   }
 
   bufferToText (msgBuffer, japanese) {
@@ -435,15 +500,18 @@ class MessageEditorParser {
     let byteLength = japanese ? 2 : 1
     let eom = japanese ? endOfMessageJ : endOfMessage
     let codes = japanese ? controlCodesJ : controlCodes
+    let fontScale = japanese ? 0.88 : 0.75
 
     let end = false
     let boxBreak = false
     const state = {
       rows: 1,
+      widths: [0],
       hideButton: false,
       icon: null,
       choiceMode: null,
       nextMessage: null,
+      byteInfo: [],
       end: () => {
         end = true
       },
@@ -458,6 +526,7 @@ class MessageEditorParser {
     let i = 0
     msgBuffer = Buffer.concat([msgBuffer, Buffer.alloc(4)])
     while (i < msgBuffer.length - 4) {
+      state.byteInfo[i] = [state.widths[state.rows - 1], state.rows - 1]
       let val = msgBuffer.readUIntBE(i, byteLength)
       if (val === eom) {
         break
@@ -474,8 +543,21 @@ class MessageEditorParser {
           }
         }
         i += argLen
+      } else {
+        if (japanese) {
+          // We do not currently support row width info for japanese
+        } else {
+          state.widths[state.rows - 1] += Math.floor(this.characterWidth[val - 0x20] * fontScale)
+        }
       }
       i += byteLength
+    }
+    if (state.icon) {
+      for (let i = 0; i < state.byteInfo.length; i++) {
+        if (state.byteInfo[i] && state.byteInfo[i][1] > 0) {
+          state.byteInfo[i][0] += 32
+        }
+      }
     }
     return state
   }

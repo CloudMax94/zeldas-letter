@@ -4,7 +4,7 @@ CodeMirror.defineMode('mudora', function (config) {
   var settings, last
 
   settings = {
-    bbCodeUnaryTags: 'i A B C L R Z \\^ v < > STICK + TARGET br stay event UNK_0D name ocarina UNK_11 marathon race points skulltulas noskip ch2 ch3 fish time color step fade icon speed record next sound bg'
+    bbCodeUnaryTags: 'i A B C L R Z \\^ v < > STICK + TARGET br stay event UNK_0D name ocarina UNK_11 marathon race points skulltulas noskip ch2 ch3 fish time color step fade icon speed record next sound bg center'
   }
 
   if (config.hasOwnProperty('bbCodeUnaryTags')) {

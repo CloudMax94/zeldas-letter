@@ -322,6 +322,15 @@ Control codes:
 [next=0x0000]   Continue at message X after current textbox
 [sound=0x0000]  Play sound effect X
 [bg=0x000000]   Set message background to X
+
+Pseudo Control codes:
+[center=0x00]   Centers the text automatically using [step] if possible, and moves the specified number of pixels to the right.
+                Should be placed before everything else on the same row that affect position. Text, [step], [icon]...
+                Does not work with control codes that output dynamic text.
+                Does not center [icon] properly.
+                Does not currently support Japanese.
+
+To prevent pseudo control codes from being replaced by regular control codes on load you have to use the source text format.
 `
 
 const infoJapanese = `
@@ -347,8 +356,8 @@ const versionStringInt = `
 
 
 
-[step=0x1A]${versionString}
-[step=0x10]cloudmodding.com`
+[center]${versionString}
+[center]cloudmodding.com`
 
 const versionStringJp = `
 
@@ -358,21 +367,21 @@ const versionStringJp = `
 [step=0x15]cloudmodding.com`
 
 const defaultMessageTexts = {
-  Japanese: `[step=0x46][color=0xC01]ゼルダの手紙[/color]
-[step=0x44][icon=0x23]
+  Japanese: `[step=0x45][color=0xC01]ゼルダの手紙[/color]
+[step=0x45][icon=0x23]
 [step=0x3]作者：[color=0xC04]クラウドマックス[/color]${versionStringJp}[stay]`,
-  English: `[step=0x3B][color=0x41]Zelda's Letter[/color]
-[step=0x3A][icon=0x23]
+  English: `[center][color=0x41]Zelda's Letter[/color]
+[center=10][icon=0x23]
 
-[step=0x08]Written by [color=0x44]CloudMax[/color]${versionStringInt}[stay]`,
-  German: `[step=0x40][color=0x41]Zeldas Brief[/color]
-[step=0x3A][icon=0x23]
+[center]Written by [color=0x44]CloudMax[/color]${versionStringInt}[stay]`,
+  German: `[center][color=0x41]Zeldas Brief[/color]
+[center=10][icon=0x23]
 
-Geschrieben von [color=0x44]CloudMax[/color]${versionStringInt}[stay]`,
-  French: `[step=0x36][color=0x41]Lettre de Zelda[/color]
-[step=0x3A][icon=0x23]
+[center]Geschrieben von [color=0x44]CloudMax[/color]${versionStringInt}[stay]`,
+  French: `[center][color=0x41]Lettre de Zelda[/color]
+[center=10][icon=0x23]
 
-[step=0x0D]Écrit par [color=0x44]CloudMax[/color]${versionStringInt}[stay]`
+[center]Écrit par [color=0x44]CloudMax[/color]${versionStringInt}[stay]`
 }
 
 function prepareDefaultMessage (messages, gameId, languages) {

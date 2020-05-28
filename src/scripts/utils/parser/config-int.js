@@ -12,7 +12,10 @@ export const controlCodes = {
     render: (state) => state.lineBreak(),
     toText: '\n',
     toMarkup: '\n',
-    info: (state) => { state.rows++ }
+    info: (state) => {
+      state.widths[state.rows] = 0
+      state.rows++
+    }
   },
   0x04: {
     tag: 'br',
@@ -137,7 +140,8 @@ export const controlCodes = {
   0x06: {
     tag: 'step',
     args: 1,
-    render: (state, argument) => { state.x += argument },
+    render: (state, argument) => { state.x += argument & 0xFF },
+    info: (state, argument) => { state.widths[state.rows - 1] += argument & 0xFF },
     toText: ' '
   },
   0x0C: {
@@ -167,6 +171,7 @@ export const controlCodes = {
     render: (state, argument) => state.icon(argument),
     info: (state, argument) => {
       state.icon = argument
+      state.widths[state.rows - 1] += 32
     }
   },
   0x14: {
