@@ -348,7 +348,7 @@ Hylian can also be written as rōmaji:
 {ma}{mi} {mu}{me}{mo}  {ra}{ri} {ru} {re}{ro}
 {ya}     {yu}    {yo}  {wa}          {n} {wo}`
 
-const versionString = `Version 0.4.0`
+const versionString = `Version 0.5.0`
 
 const versionStringInt = `
 
